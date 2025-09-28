@@ -4,6 +4,7 @@ use super::{Context, Module, ModuleConfig};
 
 use crate::configs::sudo::SudoConfig;
 use crate::formatter::StringFormatter;
+use nix::libc;
 
 /// Creates a module with sudo credential cache status
 pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
