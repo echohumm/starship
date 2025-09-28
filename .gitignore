@@ -32,3 +32,5 @@ docs/.vitepress/cache/
 
 # Ignore pkg files within the install directory
 install/**/*.pkg
+/pkg
+*.zst
