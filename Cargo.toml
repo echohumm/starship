@@ -125,6 +125,7 @@ tempfile = "3.22.0"
 codegen-units = 1
 lto = true
 strip = true
+opt-level = 3
 
 [profile.bench]
 codegen-units = 16

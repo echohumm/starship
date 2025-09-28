@@ -18,9 +18,11 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         return None;
     }
 
-    let is_sudo_cached = context.exec_cmd("sudo", &["-n", "true"]).is_some();
+    if unsafe { libc::getuid() == 0 } {
+        return None;
+    }
 
-    if !is_sudo_cached {
+    if !context.exec_cmd("sudo", &["-n", "true"]).is_some() {
         return None;
     }
 
