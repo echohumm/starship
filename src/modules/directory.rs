@@ -140,7 +140,16 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     let parsed = StringFormatter::new(display_format).and_then(|formatter| {
         formatter
             .map_style(|variable| match variable {
-                "style" => Some(Ok(config.style)),
+                "style" => Some(Ok({
+                    if path_vec[2].starts_with(config.home_symbol)
+                        && unsafe { nix::libc::getuid() == 0 }
+                        && let Some(rhs) = config.root_home_style
+                    {
+                        rhs
+                    } else {
+                        config.style
+                    }
+                })),
                 "read_only_style" => Some(Ok(config.read_only_style)),
                 "repo_root_style" => Some(Ok(repo_root_style)),
                 "before_repo_root_style" => Some(Ok(before_repo_root_style)),

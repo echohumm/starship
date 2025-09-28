@@ -33,7 +33,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         time_format,
     )
     .unwrap_or_else(|_| {
-        log::warn!("Invalid utc_time_offset configuration provided! Falling back to \"local\".");
+        log::warn!("Invalid utc_time_offset configuration provided: {:?}! Falling back to \"local\".", config.utc_time_offset);
         format_time(time_format, Local::now())
     });
 
@@ -66,6 +66,10 @@ fn create_offset_time_string(
     utc_time_offset_str: &str,
     time_format: &str,
 ) -> Result<String, &'static str> {
+    // workaround for what seems to be a config change?
+    if utc_time_offset_str == "local" {
+        return Ok(format_time(time_format, Local::now()));
+    }
     // Using floats to allow 30/45 minute offsets: https://www.timeanddate.com/time/time-zones-interesting.html
     let utc_time_offset_in_hours = utc_time_offset_str.parse::<f32>().unwrap_or(
         // Passing out of range value to force falling back to "local"

@@ -25,6 +25,7 @@ pub struct GitStatusConfig<'a> {
     pub ignore_submodules: bool,
     pub disabled: bool,
     pub use_git_executable: bool,
+    pub skip_threshold: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub windows_starship: Option<&'a str>,
 }
@@ -49,6 +50,7 @@ impl Default for GitStatusConfig<'_> {
             ignore_submodules: false,
             disabled: false,
             use_git_executable: false,
+            skip_threshold: 2 * 1024 * 1024,
             windows_starship: None,
         }
     }

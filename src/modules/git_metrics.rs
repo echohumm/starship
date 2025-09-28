@@ -24,6 +24,16 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     }
 
     let repo = context.get_repo().ok()?;
+
+    // Check if we should skip this module based on git index size
+    let git_dir = context.current_dir.join(".git");
+    if git_dir.exists() {
+        if let Ok(md) = std::fs::metadata(git_dir.join("index")) {
+            if md.len() > config.skip_threshold as u64 {
+                return None;
+            }
+        }
+    }
     let gix_repo = repo.open();
     if gix_repo.is_bare() {
         return None;
@@ -50,7 +60,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
             deleted: usize,
         }
         impl Diff {
-            fn add(&mut self, c: Option<gix::diff::blob::sink::Counter<()>>) {
+            const fn add(&mut self, c: Option<gix::diff::blob::sink::Counter<()>>) {
                 let Some(c) = c else { return };
                 self.added += c.insertions as usize;
                 self.deleted += c.removals as usize;
@@ -278,7 +288,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     Some(module)
 }
 
-fn prevent_external_diff(mut cache: gix::diff::blob::Platform) -> gix::diff::blob::Platform {
+const fn prevent_external_diff(mut cache: gix::diff::blob::Platform) -> gix::diff::blob::Platform {
     cache.options.skip_internal_diff_if_external_is_configured = false;
     cache
 }

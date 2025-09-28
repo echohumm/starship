@@ -32,6 +32,10 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     let mut module = context.new_module("git_status");
     let config: GitStatusConfig = GitStatusConfig::try_load(module.config);
 
+    if context.repo_size > config.skip_threshold {
+        return None;
+    }
+
     // Return None if not in git repository
     let repo = context.get_repo().ok()?;
 

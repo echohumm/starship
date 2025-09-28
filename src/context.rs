@@ -80,6 +80,8 @@ pub struct Context<'a> {
     /// Starship root config
     pub root_config: StarshipRootConfig,
 
+    pub repo_size: u64,
+
     /// Avoid issues with unused lifetimes when features are disabled
     _marker: PhantomData<&'a ()>,
 }
@@ -163,6 +165,8 @@ impl<'a> Context<'a> {
 
         let width = properties.terminal_width;
 
+        let repo_size = repo_size(&current_dir);
+
         Self {
             config,
             properties,
@@ -181,6 +185,7 @@ impl<'a> Context<'a> {
             #[cfg(feature = "battery")]
             battery_info_provider: &crate::modules::BatteryInfoProviderImpl,
             root_config,
+            repo_size,
             _marker: PhantomData,
         }
     }
@@ -511,6 +516,17 @@ fn get_config_path_os(env: &Env) -> Option<OsString> {
         return Some(config_path);
     }
     Some(home_dir(env)?.join(".config").join("starship.toml").into())
+}
+
+fn repo_size(path: &Path) -> u64 {
+    let git_dir = path.join(".git");
+    if git_dir.exists() {
+        if let Ok(md) = fs::metadata(git_dir.join("index")) {
+            return md.len();
+        }
+    }
+
+    0
 }
 
 #[derive(Debug)]

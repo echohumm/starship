@@ -14,6 +14,8 @@ pub struct GitMetricsConfig<'a> {
     pub format: &'a str,
     pub disabled: bool,
     pub ignore_submodules: bool,
+    // this is painfully slow (500ms) in projects as large as, say, linux.
+    pub skip_threshold: u64,
 }
 
 impl Default for GitMetricsConfig<'_> {
@@ -25,6 +27,7 @@ impl Default for GitMetricsConfig<'_> {
             format: "([+$added]($added_style) )([-$deleted]($deleted_style) )",
             disabled: true,
             ignore_submodules: false,
+            skip_threshold: 2 * 1024 * 1024,
         }
     }
 }
