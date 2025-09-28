@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 jobs:
   build-and-publish:
@@ -35,4 +36,3 @@ jobs:
           artifacts: artifacts/starship-*.tar.gz
           repo: echohumm/starship
           token: ${{ secrets.GITHUB_TOKEN }}
-          
