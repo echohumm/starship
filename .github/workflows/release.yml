@@ -30,8 +30,9 @@ jobs:
       - name: Create release and upload artifact
         uses: ncipollo/release-action@v1
         with:
-          tag: ${{ github.sha }}
+          tag: build-${{ github.sha }}
           name: build-${{ github.sha }}
-          files: artifacts/starship-*.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          artifacts: artifacts/starship-*.tar.gz
+          repo: echohumm/starship
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
