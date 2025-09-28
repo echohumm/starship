@@ -1,6 +1,6 @@
 # PKGBUILD example for a simple Rust binary
 pkgname="starship"
-pkgver="1.23.0"
+pkgver="1.23.0+8"
 pkgrel="1"
 pkgdesc="A short description of your Rust application"
 arch=('x86_64')         # Or other architectures as needed
