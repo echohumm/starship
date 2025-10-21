@@ -50,7 +50,13 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         ShellEditMode::Replace => config.vimcmd_replace_symbol,
         ShellEditMode::ReplaceOne => config.vimcmd_replace_one_symbol,
         ShellEditMode::Insert => {
-            if exit_success {
+            if unsafe { nix::libc::getuid() == 0 } {
+                if exit_success {
+                    config.root_success_symbol
+                } else {
+                    config.root_error_symbol
+                }
+            } else if exit_success {
                 config.success_symbol
             } else {
                 config.error_symbol
