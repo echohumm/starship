@@ -27,15 +27,18 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
 
     log::trace!("Timer module is enabled with format string: {time_format}");
 
-    let formatted_time_string = create_offset_time_string(
-        Utc::now(),
-        config.utc_time_offset,
-        time_format,
-    )
-    .unwrap_or_else(|_| {
-        log::warn!("Invalid utc_time_offset configuration provided: {:?}! Falling back to \"local\".", config.utc_time_offset);
+    let formatted_time_string = if config.utc_time_offset != "local" {
+        create_offset_time_string(Utc::now(), config.utc_time_offset, time_format).unwrap_or_else(
+            |_| {
+                log::warn!(
+                    "Invalid utc_time_offset configuration provided! Falling back to \"local\"."
+                );
+                format_time(time_format, Local::now())
+            },
+        )
+    } else {
         format_time(time_format, Local::now())
-    });
+    };
 
     let parsed = StringFormatter::new(config.format).and_then(|formatter| {
         formatter
@@ -66,10 +69,6 @@ fn create_offset_time_string(
     utc_time_offset_str: &str,
     time_format: &str,
 ) -> Result<String, &'static str> {
-    // workaround for what seems to be a config change?
-    if utc_time_offset_str == "local" {
-        return Ok(format_time(time_format, Local::now()));
-    }
     // Using floats to allow 30/45 minute offsets: https://www.timeanddate.com/time/time-zones-interesting.html
     let utc_time_offset_in_hours = utc_time_offset_str.parse::<f32>().unwrap_or(
         // Passing out of range value to force falling back to "local"
