@@ -1,5 +1,5 @@
 pkgname="starship"
-pkgver="1.23.0+8"
+pkgver="1.23.0+9"
 pkgrel="1"
 pkgdesc="A short description of your Rust application"
 arch=('x86_64')
