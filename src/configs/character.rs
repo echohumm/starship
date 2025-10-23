@@ -27,7 +27,7 @@ impl Default for CharacterConfig<'_> {
             format: "$symbol ",
             success_symbol: "[❯](bold green)",
             error_symbol: "[❯](bold red)",
-            root_success_symbol: "[λ](bold cyan)",
+            root_success_symbol: "[#](bold cyan)",
             root_error_symbol: "[#](bold red)",
             vimcmd_symbol: "[❮](bold green)",
             vimcmd_visual_symbol: "[❮](bold yellow)",

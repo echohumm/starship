@@ -1,7 +1,7 @@
 pkgname="starship"
-pkgver="1.23.0+9"
+pkgver="1.23.0+16"
 pkgrel="1"
-pkgdesc="A short description of your Rust application"
+pkgdesc="echohumm fork of starship"
 arch=('x86_64')
 url="https://github.com/echohumm/starship"
 license=('ISC')
