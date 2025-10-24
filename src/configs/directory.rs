@@ -19,6 +19,7 @@ pub struct DirectoryConfig<'a> {
     pub repo_root_format: &'a str,
     pub style: &'a str,
     pub root_home_style: Option<&'a str>,
+    pub user_home_style: Option<&'a str>,
     pub repo_root_style: Option<&'a str>,
     pub before_repo_root_style: Option<&'a str>,
     pub disabled: bool,
@@ -26,6 +27,7 @@ pub struct DirectoryConfig<'a> {
     pub read_only_style: &'a str,
     pub truncation_symbol: &'a str,
     pub home_symbol: &'a str,
+    pub root_abbr_home: bool,
     pub use_os_path_sep: bool,
 }
 
@@ -41,6 +43,7 @@ impl Default for DirectoryConfig<'_> {
             repo_root_format: "[$before_root_path]($before_repo_root_style)[$repo_root]($repo_root_style)[$path]($style)[$read_only]($read_only_style) ",
             style: "cyan bold",
             root_home_style: None,
+            user_home_style: None,
             repo_root_style: None,
             before_repo_root_style: None,
             disabled: false,
@@ -48,6 +51,7 @@ impl Default for DirectoryConfig<'_> {
             read_only_style: "red",
             truncation_symbol: "",
             home_symbol: "~",
+            root_abbr_home: false,
             use_os_path_sep: true,
         }
     }

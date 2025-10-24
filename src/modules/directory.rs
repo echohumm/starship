@@ -68,7 +68,13 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
 
     // the home directory if required.
     let dir_string = dir_string
-        .unwrap_or_else(|| contract_path(display_dir, &home_dir, config.home_symbol).to_string());
+        .unwrap_or_else(|| {
+            if unsafe { nix::libc::getuid() == 0 } && !config.root_abbr_home {
+                display_dir.to_slash_lossy().to_string()
+            } else {
+                contract_path(display_dir, &home_dir, config.home_symbol).to_string()
+            }
+        });
 
     #[cfg(windows)]
     let dir_string = remove_extended_path_prefix(dir_string);
@@ -90,7 +96,12 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         // fish-style path contraction together
         if config.fish_style_pwd_dir_length > 0 && config.substitutions.is_empty() {
             // If user is using fish style path, we need to add the segment first
-            let contracted_home_dir = contract_path(display_dir, &home_dir, config.home_symbol);
+            let contracted_home_dir =
+                if unsafe { nix::libc::getuid() == 0 } && !config.root_abbr_home {
+                    display_dir.to_slash_lossy()
+                } else {
+                    contract_path(display_dir, &home_dir, config.home_symbol)
+                };
             to_fish_style(
                 config.fish_style_pwd_dir_length as usize,
                 &contracted_home_dir,
@@ -141,10 +152,18 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         formatter
             .map_style(|variable| match variable {
                 "style" => Some(Ok({
-                    if path_vec[2].starts_with(config.home_symbol)
-                        && unsafe { nix::libc::getuid() == 0 }
+                    if {
+                        let resolved_home_prefix = if unsafe { nix::libc::getuid() == 0 } && !config.root_abbr_home {
+                            home_dir.to_slash_lossy()
+                        } else {
+                            Cow::from("~")
+                        };
+                        path_vec[2].starts_with(resolved_home_prefix.as_ref())
+                    } && unsafe { nix::libc::getuid() == 0 }
                         && let Some(rhs) = config.root_home_style
                     {
+                        rhs
+                    } else if unsafe { nix::libc::getuid() != 0 } && let Some(rhs) = config.user_home_style {
                         rhs
                     } else {
                         config.style
