@@ -163,10 +163,18 @@ fn format_exit_code<'a>(
                 _ => None,
             })
             .map_style(|variable| match variable {
-                "style" => Some(Ok(if exit_code_int == 0 {
-                    config.success_style
+                "style" => Some(Ok(if unsafe { nix::libc::getuid() == 0 } {
+                    if exit_code_int == 0 {
+                        config.root_success_style
+                    } else {
+                        config.root_failure_style
+                    }
                 } else {
-                    config.failure_style
+                    if exit_code_int == 0 {
+                        config.success_style
+                    } else {
+                        config.failure_style
+                    }
                 }
                 .unwrap_or(config.style))),
                 _ => None,

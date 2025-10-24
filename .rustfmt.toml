@@ -3,3 +3,5 @@
 # The empty `rustfmt.toml` makes rustfmt use the default configuration,
 # overriding any which may be found in the contributor's home or parent
 # folders.
+
+# i really wish i could use my own format, but it would doom me to painful git merges for all eternity

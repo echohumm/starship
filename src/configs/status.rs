@@ -20,6 +20,10 @@ pub struct StatusConfig<'a> {
     pub success_style: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub failure_style: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root_success_style: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub root_failure_style: Option<&'a str>,
     pub map_symbol: bool,
     pub recognize_signal_code: bool,
     pub pipestatus: bool,
@@ -43,6 +47,8 @@ impl Default for StatusConfig<'_> {
             style: "bold red",
             success_style: None,
             failure_style: None,
+            root_success_style: None,
+            root_failure_style: None,
             map_symbol: false,
             recognize_signal_code: true,
             pipestatus: false,
