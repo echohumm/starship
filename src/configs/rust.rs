@@ -26,7 +26,7 @@ impl Default for RustConfig<'_> {
             symbol: "🦀 ",
             style: "bold red",
             disabled: false,
-            detect_extensions: vec!["rs"],
+            detect_extensions: vec![],
             detect_files: vec!["Cargo.toml"],
             detect_folders: vec![],
         }

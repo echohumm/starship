@@ -39,7 +39,7 @@ impl Default for PythonConfig<'_> {
             style: "yellow bold",
             symbol: "🐍 ",
             disabled: false,
-            detect_extensions: vec!["py", "ipynb"],
+            detect_extensions: vec!["ipynb"],
             detect_files: vec![
                 "requirements.txt",
                 ".python-version",

@@ -26,7 +26,7 @@ impl Default for PerlConfig<'_> {
             symbol: "🐪 ",
             style: "149 bold",
             disabled: false,
-            detect_extensions: vec!["pl", "pm", "pod"],
+            detect_extensions: vec!["pm", "pod"],
             detect_files: vec![
                 "Makefile.PL",
                 "Build.PL",
