@@ -25,7 +25,7 @@ impl Default for ElmConfig<'_> {
             version_format: "v${raw}",
             symbol: "🌳 ",
             style: "cyan bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["elm"],
             detect_files: vec!["elm.json", "elm-package.json", ".elm-version"],
             detect_folders: vec!["elm-stuff"],

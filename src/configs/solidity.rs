@@ -29,7 +29,7 @@ impl Default for SolidityConfig<'_> {
             style: "bold blue",
             compiler: VecOr(vec!["solc"]),
             version_format: "v${major}.${minor}.${patch}",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["sol"],
             detect_files: vec![],
             detect_folders: vec![],

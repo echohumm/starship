@@ -25,7 +25,7 @@ impl Default for ZigConfig<'_> {
             version_format: "v${raw}",
             symbol: "↯ ",
             style: "bold yellow",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["zig"],
             detect_files: vec![],
             detect_folders: vec![],

@@ -25,7 +25,7 @@ impl Default for OpaConfig<'_> {
             version_format: "v${raw}",
             symbol: "🪖 ",
             style: "bold blue",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["rego"],
             detect_files: vec![],
             detect_folders: vec![],

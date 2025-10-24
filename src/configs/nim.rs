@@ -25,7 +25,7 @@ impl Default for NimConfig<'_> {
             version_format: "v${raw}",
             symbol: "👑 ",
             style: "yellow bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["nim", "nims", "nimble"],
             detect_files: vec!["nim.cfg"],
             detect_folders: vec![],

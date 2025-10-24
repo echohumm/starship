@@ -25,7 +25,7 @@ impl Default for DenoConfig<'_> {
             version_format: "v${raw}",
             symbol: "🦕 ",
             style: "green bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec![],
             detect_files: vec![
                 "deno.json",

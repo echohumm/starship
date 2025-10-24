@@ -25,7 +25,7 @@ impl Default for HaxeConfig<'_> {
             version_format: "v${raw}",
             symbol: "⌘ ",
             style: "bold fg:202",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["hx", "hxml"],
             detect_files: vec!["haxelib.json", "hxformat.json", ".haxerc"],
             detect_folders: vec![".haxelib", "haxe_libraries"],

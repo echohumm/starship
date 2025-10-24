@@ -25,7 +25,7 @@ impl Default for JuliaConfig<'_> {
             version_format: "v${raw}",
             symbol: "ஃ ",
             style: "bold purple",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["jl"],
             detect_files: vec!["Project.toml", "Manifest.toml"],
             detect_folders: vec![],

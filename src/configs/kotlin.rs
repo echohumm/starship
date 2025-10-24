@@ -27,7 +27,7 @@ impl Default for KotlinConfig<'_> {
             symbol: "🅺 ",
             style: "bold blue",
             kotlin_binary: "kotlin",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["kt", "kts"],
             detect_files: vec![],
             detect_folders: vec![],

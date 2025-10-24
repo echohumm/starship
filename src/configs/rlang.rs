@@ -25,7 +25,7 @@ impl Default for RLangConfig<'_> {
             version_format: "v${raw}",
             style: "blue bold",
             symbol: "📐 ",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["R", "Rd", "Rmd", "Rproj", "Rsx"],
             detect_files: vec!["DESCRIPTION"],
             detect_folders: vec![".Rproj.user"],

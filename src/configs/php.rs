@@ -25,7 +25,7 @@ impl Default for PhpConfig<'_> {
             version_format: "v${raw}",
             symbol: "🐘 ",
             style: "147 bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["php"],
             detect_files: vec!["composer.json", ".php-version"],
             detect_folders: vec![],

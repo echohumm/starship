@@ -25,7 +25,7 @@ impl Default for VConfig<'_> {
             version_format: "v${raw}",
             symbol: "V ",
             style: "blue bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["v"],
             detect_files: vec!["v.mod", "vpkg.json", ".vpkg-lock.json"],
             detect_folders: vec![],

@@ -23,7 +23,7 @@ impl Default for ScalaConfig<'_> {
         Self {
             format: "via [$symbol($version )]($style)",
             version_format: "v${raw}",
-            disabled: false,
+            disabled: true,
             style: "red bold",
             symbol: "🆂 ",
             detect_extensions: vec!["sbt", "scala"],

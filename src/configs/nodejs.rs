@@ -26,7 +26,7 @@ impl Default for NodejsConfig<'_> {
             version_format: "v${raw}",
             symbol: " ",
             style: "bold green",
-            disabled: false,
+            disabled: true,
             not_capable_style: "bold red",
             detect_extensions: vec!["js", "mjs", "cjs", "ts", "mts", "cts"],
             detect_files: vec![

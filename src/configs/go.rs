@@ -26,7 +26,7 @@ impl Default for GoConfig<'_> {
             version_format: "v${raw}",
             symbol: "🐹 ",
             style: "bold cyan",
-            disabled: false,
+            disabled: true,
             not_capable_style: "bold red",
             detect_extensions: vec!["go"],
             detect_files: vec![

@@ -25,7 +25,7 @@ impl Default for DartConfig<'_> {
             version_format: "v${raw}",
             symbol: "🎯 ",
             style: "bold blue",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["dart"],
             detect_files: vec!["pubspec.yaml", "pubspec.yml", "pubspec.lock"],
             detect_folders: vec![".dart_tool"],

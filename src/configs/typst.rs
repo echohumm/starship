@@ -25,7 +25,7 @@ impl Default for TypstConfig<'_> {
             version_format: "v${raw}",
             symbol: "t ",
             style: "bold #0093A7",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["typ"],
             detect_files: vec!["template.typ"],
             detect_folders: vec![],

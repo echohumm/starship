@@ -26,7 +26,7 @@ impl Default for MojoConfig<'_> {
             format: "with [$symbol($version )]($style)",
             symbol: "🔥 ",
             style: "bold 208",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["mojo", "🔥"],
             detect_files: vec![],
             detect_folders: vec![],

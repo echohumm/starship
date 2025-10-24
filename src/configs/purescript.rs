@@ -25,7 +25,7 @@ impl Default for PureScriptConfig<'_> {
             version_format: "v${raw}",
             symbol: "<=> ",
             style: "bold white",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["purs"],
             detect_files: vec!["spago.dhall", "spago.yaml", "spago.lock"],
             detect_folders: vec![],

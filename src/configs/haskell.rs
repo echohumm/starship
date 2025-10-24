@@ -25,7 +25,7 @@ impl Default for HaskellConfig<'_> {
             version_format: "v${raw}",
             symbol: "λ ",
             style: "bold purple",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["hs", "cabal", "hs-boot"],
             detect_files: vec!["stack.yaml", "cabal.project"],
             detect_folders: vec![],

@@ -25,7 +25,7 @@ impl Default for OdinConfig<'_> {
             show_commit: false,
             symbol: "Ø ",
             style: "bold bright-blue",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["odin"],
             detect_files: vec![],
             detect_folders: vec![],

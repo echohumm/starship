@@ -25,7 +25,7 @@ impl Default for RakuConfig<'_> {
             version_format: "${raw}",
             symbol: "🦋 ",
             style: "149 bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["p6", "pm6", "pod6", "raku", "rakumod"],
             detect_files: vec!["META6.json"],
             detect_folders: vec![],

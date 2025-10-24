@@ -26,7 +26,7 @@ impl Default for RubyConfig<'_> {
             version_format: "v${raw}",
             symbol: "💎 ",
             style: "bold red",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["rb"],
             detect_files: vec!["Gemfile", ".ruby-version"],
             detect_folders: vec![],

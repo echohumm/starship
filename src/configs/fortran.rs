@@ -26,7 +26,7 @@ impl Default for FortranConfig<'_> {
             version_format: "${raw}",
             symbol: "🅵  ",
             style: "bold purple",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec![
                 "f", "F", "for", "FOR", "ftn", "FTN", "f77", "F77", "f90", "F90", "f95", "F95",
                 "f03", "F03", "f08", "F08", "f18", "F18",

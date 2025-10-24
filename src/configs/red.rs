@@ -25,7 +25,7 @@ impl Default for RedConfig<'_> {
             version_format: "v${raw}",
             symbol: "🔺 ",
             style: "red bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["red", "reds"],
             detect_files: vec![],
             detect_folders: vec![],

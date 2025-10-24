@@ -25,7 +25,7 @@ impl Default for GleamConfig<'_> {
             version_format: "v${raw}",
             symbol: "⭐ ",
             style: "bold #FFAFF3",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["gleam"],
             detect_files: vec!["gleam.toml"],
             detect_folders: vec![],

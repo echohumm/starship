@@ -38,7 +38,7 @@ impl Default for PythonConfig<'_> {
             version_format: "v${raw}",
             style: "yellow bold",
             symbol: "🐍 ",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["ipynb"],
             detect_files: vec![
                 "requirements.txt",

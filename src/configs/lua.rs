@@ -27,7 +27,7 @@ impl Default for LuaConfig<'_> {
             symbol: "🌙 ",
             style: "bold blue",
             lua_binary: "lua",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["lua"],
             detect_files: vec![".lua-version"],
             detect_folders: vec!["lua"],

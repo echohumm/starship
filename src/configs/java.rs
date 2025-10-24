@@ -23,7 +23,7 @@ impl Default for JavaConfig<'_> {
         Self {
             format: "via [$symbol($version )]($style)",
             version_format: "v${raw}",
-            disabled: false,
+            disabled: true,
             style: "red dimmed",
             symbol: "☕ ",
             detect_extensions: vec!["java", "class", "jar", "gradle", "clj", "cljc"],

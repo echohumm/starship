@@ -25,7 +25,7 @@ impl Default for ElixirConfig<'_> {
             version_format: "v${raw}",
             symbol: "💧 ",
             style: "bold purple",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec![],
             detect_files: vec!["mix.exs"],
             detect_folders: vec![],

@@ -29,7 +29,7 @@ impl Default for OCamlConfig<'_> {
             local_switch_indicator: "*",
             symbol: "🐫 ",
             style: "bold yellow",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["opam", "ml", "mli", "re", "rei"],
             detect_files: vec!["dune", "dune-project", "jbuild", "jbuild-ignore", ".merlin"],
             detect_folders: vec!["_opam", "esy.lock"],

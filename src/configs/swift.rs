@@ -25,7 +25,7 @@ impl Default for SwiftConfig<'_> {
             version_format: "v${raw}",
             symbol: "🐦 ",
             style: "bold 202",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["swift"],
             detect_files: vec!["Package.swift"],
             detect_folders: vec![],

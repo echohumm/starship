@@ -25,7 +25,7 @@ impl Default for PerlConfig<'_> {
             version_format: "v${raw}",
             symbol: "🐪 ",
             style: "149 bold",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["pm", "pod"],
             detect_files: vec![
                 "Makefile.PL",

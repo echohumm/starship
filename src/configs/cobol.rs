@@ -25,7 +25,7 @@ impl Default for CobolConfig<'_> {
             version_format: "v${raw}",
             symbol: "⚙️ ",
             style: "bold blue",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["cbl", "cob", "CBL", "COB"],
             detect_files: vec![],
             detect_folders: vec![],

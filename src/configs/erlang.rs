@@ -25,7 +25,7 @@ impl Default for ErlangConfig<'_> {
             version_format: "v${raw}",
             symbol: " ",
             style: "bold red",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec![],
             detect_files: vec!["rebar.config", "erlang.mk"],
             detect_folders: vec![],

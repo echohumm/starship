@@ -25,7 +25,7 @@ impl Default for DamlConfig<'_> {
             format: "via [$symbol($version )]($style)",
             version_format: "v${raw}",
             style: "bold cyan",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec![],
             detect_files: vec!["daml.yaml"],
             detect_folders: vec![],

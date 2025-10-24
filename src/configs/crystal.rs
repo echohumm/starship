@@ -25,7 +25,7 @@ impl Default for CrystalConfig<'_> {
             version_format: "v${raw}",
             symbol: "🔮 ",
             style: "bold red",
-            disabled: false,
+            disabled: true,
             detect_extensions: vec!["cr"],
             detect_files: vec!["shard.yml"],
             detect_folders: vec![],
