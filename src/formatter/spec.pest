@@ -38,7 +38,7 @@ text = { (string | escape)+ }
 string = @{ text_inner_char+ }
 text_inner_char = { !(escaped_char | "@(") ~ ANY }
 escape = _{ "\\" ~ escaped_char }
-escaped_char = { "[" | "]" | "(" | ")" | "\\" | "$" | "?" }
+escaped_char = { "[" | "]" | "(" | ")" | "\\" | "$" }
 
 // TextGroup
 //
