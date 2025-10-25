@@ -13,6 +13,8 @@ pub struct StarshipRootConfig {
     #[serde(rename = "$schema")]
     schema: String,
     pub format: String,
+    pub success_style: String,
+    pub failure_style: String,
     pub right_format: String,
     pub continuation_prompt: String,
     pub scan_timeout: u64,
@@ -143,6 +145,8 @@ impl Default for StarshipRootConfig {
         Self {
             schema: "https://starship.rs/config-schema.json".to_string(),
             format: "$all".to_string(),
+            success_style: "green".to_string(),
+            failure_style: "red".to_string(),
             right_format: String::new(),
             continuation_prompt: "[∙](bright-black) ".to_string(),
             profiles: Default::default(),

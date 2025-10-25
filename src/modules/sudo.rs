@@ -18,7 +18,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         return None;
     }
 
-    if unsafe { nix::libc::getuid() == 0 } {
+    if context.uid == 0 {
         return None;
     }
 

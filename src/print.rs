@@ -97,28 +97,45 @@ pub fn get_prompt(context: &Context) -> String {
 
     let (formatter, modules) = load_formatter_and_modules(context);
 
-    let formatter = formatter.map_variables_to_segments(|module| {
-        // Make $all display all modules not explicitly referenced
-        if module == "all" {
-            Some(Ok(all_modules_uniq(&modules)
-                .par_iter()
-                .flat_map(|module| {
-                    handle_module(module, context, &modules)
-                        .into_iter()
-                        .flat_map(|module| module.segments)
-                        .collect::<Vec<Segment>>()
-                })
-                .collect::<Vec<_>>()))
-        } else if context.is_module_disabled_in_config(module) {
-            None
-        } else {
-            // Get segments from module
-            Some(Ok(handle_module(module, context, &modules)
-                .into_iter()
-                .flat_map(|module| module.segments)
-                .collect::<Vec<Segment>>()))
-        }
-    });
+    let formatter = formatter
+        .map_variables_to_segments(|module| {
+            // Make $all display all modules not explicitly referenced
+            if module == "all" {
+                Some(Ok(all_modules_uniq(&modules)
+                    .par_iter()
+                    .flat_map(|module| {
+                        handle_module(module, context, &modules)
+                            .into_iter()
+                            .flat_map(|module| module.segments)
+                            .collect::<Vec<Segment>>()
+                    })
+                    .collect::<Vec<_>>()))
+            } else if context.is_module_disabled_in_config(module) {
+                None
+            } else {
+                // Get segments from module
+                Some(Ok(handle_module(module, context, &modules)
+                    .into_iter()
+                    .flat_map(|module| module.segments)
+                    .collect::<Vec<Segment>>()))
+            }
+        })
+        .map_style(|variable| {
+            let exit_code_int = context
+                .properties
+                .status_code
+                .as_deref()
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0);
+            match variable {
+                "status_style" => Some(Ok(if exit_code_int == 0 {
+                    &*context.root_config.success_style
+                } else {
+                    &*context.root_config.failure_style
+                })),
+                _ => None,
+            }
+        });
 
     // Creates a root module and prints it.
     let mut root_module = Module::new("Starship Root", "The root module", None);

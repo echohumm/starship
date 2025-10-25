@@ -163,7 +163,7 @@ fn format_exit_code<'a>(
                 _ => None,
             })
             .map_style(|variable| match variable {
-                "style" => Some(Ok(if unsafe { nix::libc::getuid() == 0 } {
+                "style" => Some(Ok(if context.uid == 0 {
                     if exit_code_int == 0 {
                         config.root_success_style
                     } else {
