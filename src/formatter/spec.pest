@@ -4,7 +4,7 @@
 //
 // Should be started with SOI and ended with EOI, with a format string in it.
 expression = _{ SOI ~ value* ~ EOI }
-value = _{ text | variable | textgroup | conditional }
+value = _{ guard_variable | variable | textgroup | all_conditional | conditional | text }
 
 // Variable
 //
@@ -16,6 +16,11 @@ value = _{ text | variable | textgroup | conditional }
 // - Some texts wrapped in a curly bracket (`${[^\(\)\[\]\\\${}]+}`),
 //   e.g. `${env:HOST}`.
 variable = { "$" ~ (variable_name | variable_scope) }
+
+// Guard variable
+//
+// Non-rendering variable that participates in condition checks but does not render.
+guard_variable = { "?" ~ variable }
 variable_name = @{ ('a'..'z' | 'A'..'Z' | "_") ~ char* }
 char = _{ 'a'..'z' | 'A'..'Z' | '0'..'9' | "_" }
 
@@ -31,9 +36,9 @@ scoped_char = _{ !(escaped_char | "{" | "}") ~ ANY }
 // This is implemented so as to ensure all functional characters are escaped.
 text = { (string | escape)+ }
 string = @{ text_inner_char+ }
-text_inner_char = { !escaped_char ~ ANY }
+text_inner_char = { !(escaped_char | "@(") ~ ANY }
 escape = _{ "\\" ~ escaped_char }
-escaped_char = { "[" | "]" | "(" | ")" | "\\" | "$" }
+escaped_char = { "[" | "]" | "(" | ")" | "\\" | "$" | "?" }
 
 // TextGroup
 //
@@ -49,3 +54,8 @@ style = { (variable | string)* }
 //
 // A conditional format string that won't render if all the containing variables are empty.
 conditional = { "(" ~ format ~ ")" }
+
+// Strong conditional
+//
+// A stronger conditional format string that renders only if all the containing variables are non-empty.
+all_conditional = { "@(" ~ format ~ ")" }

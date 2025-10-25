@@ -21,8 +21,10 @@ pub struct TextGroup<'a> {
 pub enum FormatElement<'a> {
     Text(Cow<'a, str>),
     Variable(Cow<'a, str>),
+    GuardVariable(Cow<'a, str>),
     TextGroup(TextGroup<'a>),
     Conditional(Vec<FormatElement<'a>>),
+    AllConditional(Vec<FormatElement<'a>>),
 }
 
 #[derive(Clone)]
@@ -34,13 +36,14 @@ pub enum StyleElement<'a> {
 impl<'a> VariableHolder<Cow<'a, str>> for FormatElement<'a> {
     fn get_variables(&self) -> BTreeSet<Cow<'a, str>> {
         match self {
-            Self::Variable(var) => {
+            Self::Variable(var) | Self::GuardVariable(var) => {
                 let mut variables = BTreeSet::new();
                 variables.insert(var.clone());
                 variables
             }
             Self::TextGroup(textgroup) => textgroup.format.get_variables(),
             Self::Conditional(format) => format.get_variables(),
+            Self::AllConditional(format) => format.get_variables(),
             _ => Default::default(),
         }
     }
@@ -95,6 +98,10 @@ impl<'a> StyleVariableHolder<Cow<'a, str>> for Vec<FormatElement<'a>> {
                 acc
             }
             FormatElement::Conditional(format) => {
+                acc.extend(format.get_style_variables());
+                acc
+            }
+            FormatElement::AllConditional(format) => {
                 acc.extend(format.get_style_variables());
                 acc
             }

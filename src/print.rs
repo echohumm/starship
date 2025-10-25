@@ -129,9 +129,17 @@ pub fn get_prompt(context: &Context) -> String {
                 .unwrap_or(0);
             match variable {
                 "status_style" => Some(Ok(if exit_code_int == 0 {
-                    &*context.root_config.success_style
+                    if context.uid == 0 {
+                        &*context.root_config.root_success_style
+                    } else {
+                        &*context.root_config.success_style
+                    }
                 } else {
-                    &*context.root_config.failure_style
+                    if context.uid == 0 {
+                        &*context.root_config.root_failure_style
+                    } else {
+                        &*context.root_config.failure_style
+                    }
                 })),
                 _ => None,
             }

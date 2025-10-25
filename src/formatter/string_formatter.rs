@@ -12,6 +12,8 @@ use crate::segment::Segment;
 use super::model::*;
 use super::parser::{Rule, parse};
 
+// yes, i used ai.
+
 #[derive(Clone)]
 enum VariableValue<'a> {
     Plain(Cow<'a, str>),
@@ -341,26 +343,24 @@ impl<'a> StringFormatter<'a> {
                                 }
                             })
                             .unwrap_or_else(|| Ok(Vec::new())),
+                                                        // GuardVariable participates in conditionals but does not render output
+                                                        FormatElement::GuardVariable(_name) => Ok(Vec::new()),
                         FormatElement::Conditional(format) => {
-                            // Show the conditional format string if all the variables inside are not
-                            // none or empty string.
+                            // Show the conditional format string if any subelement would render.
+                            // Variables inside an AllConditional only contribute if that group would render.
                             fn should_show_elements<'a>(
                                 format_elements: &[FormatElement],
                                 variables: &'a VariableMapType<'a>,
                             ) -> bool {
-                                format_elements.get_variables().iter().any(|var| {
-                                    variables
-                                        .get(var.as_ref())
-                                        // false if can't find the variable in format string
-                                        .is_some_and(|map_result| {
-                                            let map_result = map_result.as_ref();
+                                format_elements.iter().any(|el| match el {
+                                    FormatElement::Variable(name)
+                                    | FormatElement::GuardVariable(name) => {
+                                        variables.get(name.as_ref()).is_some_and(|map_result| {
                                             map_result
+                                                .as_ref()
                                                 .and_then(|result| result.as_ref().ok())
-                                                // false if the variable is None or Err, or a meta variable
-                                                // that shouldn't show
                                                 .is_some_and(|result| match result {
-                                                    // If the variable is a meta variable, also
-                                                    // check the format string inside it.
+                                                    // Meta: if it contains variables, defer to OR/ALL rules accordingly via helper
                                                     VariableValue::Meta(meta_elements) => {
                                                         let meta_variables =
                                                             clone_without_meta(variables);
@@ -369,21 +369,30 @@ impl<'a> StringFormatter<'a> {
                                                             &meta_variables,
                                                         )
                                                     }
-                                                    VariableValue::Plain(plain_value) => {
-                                                        !plain_value.is_empty()
+                                                    VariableValue::Plain(v) => !v.is_empty(),
+                                                    VariableValue::NoEscapingPlain(v) => {
+                                                        !v.is_empty()
                                                     }
-                                                    VariableValue::NoEscapingPlain(
-                                                        no_escaping_plain_value,
-                                                    ) => !no_escaping_plain_value.is_empty(),
                                                     VariableValue::Styled(segments) => segments
                                                         .iter()
                                                         .any(|x| !x.value().is_empty()),
                                                 })
                                         })
+                                    }
+                                    FormatElement::AllConditional(inner) => {
+                                        should_show_elements_all(inner, variables)
+                                    }
+                                    FormatElement::Conditional(inner) => {
+                                        should_show_elements(inner, variables)
+                                    }
+                                    FormatElement::TextGroup(textgroup) => {
+                                        should_show_elements(&textgroup.format, variables)
+                                    }
+                                    FormatElement::Text(_) => false,
                                 })
                             }
 
-                            // Check if a single format element should be shown.
+                            // Check if a single format element should be shown (used by meta vars).
                             fn should_show_format_element<'a>(
                                 format_element: &FormatElement,
                                 variables: &'a VariableMapType<'a>,
@@ -394,6 +403,9 @@ impl<'a> StringFormatter<'a> {
                                     FormatElement::Variable(_) => {
                                         should_show_elements(&[format_element.clone()], variables)
                                     }
+                                    FormatElement::GuardVariable(_) => {
+                                        should_show_elements(&[format_element.clone()], variables)
+                                    }
                                     FormatElement::Conditional(format) => {
                                         should_show_elements(format, variables)
                                     }
@@ -401,7 +413,12 @@ impl<'a> StringFormatter<'a> {
                                         .format
                                         .iter()
                                         .any(|f| should_show_format_element(f, variables)),
+                                    // For meta variables, non-empty text should be considered set.
                                     FormatElement::Text(t) => !t.is_empty(),
+                                    FormatElement::AllConditional(format) => {
+                                        // Delegate to 'all' variables check for nested stronger conditional.
+                                        should_show_elements_all(format, variables)
+                                    }
                                 }
                             }
 
@@ -422,7 +439,161 @@ impl<'a> StringFormatter<'a> {
                                     .any(|f| should_show_format_element(f, variables))
                             }
 
+                            // 'all' helper used by AllConditional and for nested checks.
+                            fn should_show_elements_all<'a>(
+                                format_elements: &[FormatElement],
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                let vars = format_elements.get_variables();
+                                !vars.is_empty()
+                                    && vars.iter().all(|var| {
+                                        variables.get(var.as_ref()).is_some_and(|map_result| {
+                                            let map_result = map_result.as_ref();
+                                            map_result
+                                                .and_then(|result| result.as_ref().ok())
+                                                .is_some_and(|result| match result {
+                                                    VariableValue::Meta(meta_elements) => {
+                                                        let meta_variables =
+                                                            clone_without_meta(variables);
+                                                        should_show_meta_var_all(
+                                                            meta_elements,
+                                                            &meta_variables,
+                                                        )
+                                                    }
+                                                    VariableValue::Plain(plain_value) => {
+                                                        !plain_value.is_empty()
+                                                    }
+                                                    VariableValue::NoEscapingPlain(
+                                                        no_escaping_plain_value,
+                                                    ) => !no_escaping_plain_value.is_empty(),
+                                                    VariableValue::Styled(segments) => segments
+                                                        .iter()
+                                                        .any(|x| !x.value().is_empty()),
+                                                })
+                                        })
+                                    })
+                            }
+
+                            fn should_show_format_element_all<'a>(
+                                format_element: &FormatElement,
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                match format_element {
+                                    FormatElement::Variable(_) | FormatElement::GuardVariable(_) => {
+                                        should_show_elements_all(&[format_element.clone()], variables)
+                                    }
+                                    FormatElement::Conditional(format) => {
+                                        should_show_elements_all(format, variables)
+                                    }
+                                    FormatElement::AllConditional(format) => {
+                                        should_show_elements_all(format, variables)
+                                    }
+                                    FormatElement::TextGroup(textgroup) => textgroup
+                                        .format
+                                        .iter()
+                                        .any(|f| {
+                                            should_show_format_element_all(f, variables)
+                                        }),
+                                    // For 'all' checks, plain text alone should not trigger
+                                    FormatElement::Text(t) => !t.is_empty(),
+                                }
+                            }
+
+                            fn should_show_meta_var_all<'a>(
+                                format_elements: &[FormatElement],
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                if !format_elements.get_variables().is_empty() {
+                                    return should_show_elements_all(format_elements, variables);
+                                }
+
+                                format_elements
+                                    .iter()
+                                    .any(|f| should_show_format_element_all(f, variables))
+                            }
+
                             let should_show: bool = should_show_elements(&format, variables);
+
+                            if should_show {
+                                parse_format(format, style, variables, style_variables, context)
+                            } else {
+                                Ok(Vec::new())
+                            }
+                        }
+                        FormatElement::AllConditional(format) => {
+                            // Render only if all variables inside are non-empty
+                            fn should_show_elements_all<'a>(
+                                format_elements: &[FormatElement],
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                let vars = format_elements.get_variables();
+                                !vars.is_empty()
+                                    && vars.iter().all(|var| {
+                                        variables.get(var.as_ref()).is_some_and(|map_result| {
+                                            let map_result = map_result.as_ref();
+                                            map_result
+                                                .and_then(|result| result.as_ref().ok())
+                                                .is_some_and(|result| match result {
+                                                    VariableValue::Meta(meta_elements) => {
+                                                        let meta_variables =
+                                                            clone_without_meta(variables);
+                                                        should_show_meta_var_all(
+                                                            meta_elements,
+                                                            &meta_variables,
+                                                        )
+                                                    }
+                                                    VariableValue::Plain(plain_value) => {
+                                                        !plain_value.is_empty()
+                                                    }
+                                                    VariableValue::NoEscapingPlain(
+                                                        no_escaping_plain_value,
+                                                    ) => !no_escaping_plain_value.is_empty(),
+                                                    VariableValue::Styled(segments) => segments
+                                                        .iter()
+                                                        .any(|x| !x.value().is_empty()),
+                                                })
+                                        })
+                                    })
+                            }
+
+                            fn should_show_format_element_all<'a>(
+                                format_element: &FormatElement,
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                match format_element {
+                                    FormatElement::Variable(_) | FormatElement::GuardVariable(_) => {
+                                        should_show_elements_all(&[format_element.clone()], variables)
+                                    }
+                                    FormatElement::Conditional(format) => {
+                                        should_show_elements_all(format, variables)
+                                    }
+                                    FormatElement::AllConditional(format) => {
+                                        should_show_elements_all(format, variables)
+                                    }
+                                    FormatElement::TextGroup(textgroup) => textgroup
+                                        .format
+                                        .iter()
+                                        .any(|f| {
+                                            should_show_format_element_all(f, variables)
+                                        }),
+                                    FormatElement::Text(t) => !t.is_empty(),
+                                }
+                            }
+
+                            fn should_show_meta_var_all<'a>(
+                                format_elements: &[FormatElement],
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                if !format_elements.get_variables().is_empty() {
+                                    return should_show_elements_all(format_elements, variables);
+                                }
+
+                                format_elements
+                                    .iter()
+                                    .any(|f| should_show_format_element_all(f, variables))
+                            }
+
+                            let should_show: bool = should_show_elements_all(&format, variables);
 
                             if should_show {
                                 parse_format(format, style, variables, style_variables, context)

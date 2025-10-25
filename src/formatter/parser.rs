@@ -14,9 +14,17 @@ fn parse_value(value: Pair<Rule>) -> FormatElement {
     match value.as_rule() {
         Rule::text => FormatElement::Text(parse_text(value).into()),
         Rule::variable => FormatElement::Variable(parse_variable(value).into()),
+        Rule::guard_variable => {
+            let mut inner = value.into_inner();
+            let var = inner.next().unwrap();
+            FormatElement::GuardVariable(parse_variable(var).into())
+        }
         Rule::textgroup => FormatElement::TextGroup(parse_textgroup(value)),
         Rule::conditional => {
             FormatElement::Conditional(parse_format(value.into_inner().next().unwrap()))
+        }
+        Rule::all_conditional => {
+            FormatElement::AllConditional(parse_format(value.into_inner().next().unwrap()))
         }
         _ => unreachable!(),
     }
