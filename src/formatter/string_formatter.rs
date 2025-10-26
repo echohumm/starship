@@ -567,79 +567,187 @@ impl<'a> StringFormatter<'a> {
                             }
                         }
                         FormatElement::AllConditional(format) => {
-                            // Render only if all variables inside are non-empty
-                            fn should_show_elements_all<'a>(
-                                format_elements: &[FormatElement],
+                            // Render only if all variables inside are non-empty.
+                            // IMPORTANT: Treat a nested Conditional as a single boolean guard (OR),
+                            // not as individual variables that must all be set.
+                            #[derive(Copy, Clone)]
+                            enum Mode {
+                                Any, // OR
+                                All, // AND (requires at least one variable-like element)
+                            }
+
+                            // Check whether a mapped variable value should be considered "set"
+                            // (non-empty) for visibility purposes.
+                            fn variable_value_is_set<'a>(
+                                value: &VariableValue<'a>,
                                 variables: &'a VariableMapType<'a>,
                             ) -> bool {
-                                let vars = format_elements.get_variables();
-                                !vars.is_empty()
-                                    && vars.iter().all(|var| {
-                                        variables.get(var.as_ref()).is_some_and(|map_result| {
-                                            let map_result = map_result.as_ref();
-                                            map_result
-                                                .and_then(|result| result.as_ref().ok())
-                                                .is_some_and(|result| match result {
-                                                    VariableValue::Meta(meta_elements) => {
-                                                        let meta_variables =
-                                                            clone_without_meta(variables);
-                                                        should_show_meta_var_all(
-                                                            meta_elements,
-                                                            &meta_variables,
-                                                        )
+                                match value {
+                                    VariableValue::Plain(v) | VariableValue::NoEscapingPlain(v) => {
+                                        !v.is_empty()
+                                    }
+                                    VariableValue::Styled(segments) => {
+                                        segments.iter().any(|x| !x.value().is_empty())
+                                    }
+                                    VariableValue::Meta(format_elements) => {
+                                        // For meta-variables:
+                                        // - If they contain variables, defer to OR/ALL rules accordingly.
+                                        // - If they contain only text, consider non-empty text as set.
+                                        let (has_vars, any_true) =
+                                            eval_elements(format_elements, variables, Mode::Any);
+                                        if has_vars {
+                                            any_true
+                                        } else {
+                                            // No variables inside meta; consider non-empty text/groups
+                                            format_elements.iter().any(|f| {
+                                                match f {
+                                                    FormatElement::Text(t) => !t.is_empty(),
+                                                    FormatElement::TextGroup(tg) => {
+                                                        let (_hv, or_true) = eval_elements(
+                                                            &tg.format,
+                                                            variables,
+                                                            Mode::Any,
+                                                        );
+                                                        or_true
                                                     }
-                                                    VariableValue::Plain(plain_value) => {
-                                                        !plain_value.is_empty()
+                                                    FormatElement::Conditional(inner) => {
+                                                        let (_hv, or_true) =
+                                                            eval_elements(inner, variables, Mode::Any);
+                                                        or_true
                                                     }
-                                                    VariableValue::NoEscapingPlain(
-                                                        no_escaping_plain_value,
-                                                    ) => !no_escaping_plain_value.is_empty(),
-                                                    VariableValue::Styled(segments) => segments
-                                                        .iter()
-                                                        .any(|x| !x.value().is_empty()),
-                                                })
-                                        })
+                                                    FormatElement::AllConditional(inner) => {
+                                                        let (_hv, all_true) =
+                                                            eval_elements(inner, variables, Mode::All);
+                                                        all_true
+                                                    }
+                                                    // There shouldn't be variables here if has_vars is false,
+                                                    // but treat them defensively as unset.
+                                                    FormatElement::Variable(_)
+                                                    | FormatElement::GuardVariable(_) => false,
+                                                }
+                                            })
+                                        }
+                                    }
+                                }
+                            }
+
+                            // Evaluate a list of format elements under a specific mode.
+                            // Returns (has_any_variables, result_bool).
+                            fn eval_elements<'a>(
+                                elements: &[FormatElement],
+                                variables: &'a VariableMapType<'a>,
+                                mode: Mode,
+                            ) -> (bool, bool) {
+                                // Helper to check a variable/guard-variable's value.
+                                fn var_name_is_set<'a>(
+                                    name: &Cow<'a, str>,
+                                    variables: &'a VariableMapType<'a>,
+                                ) -> bool {
+                                    variables.get(name.as_ref()).is_some_and(|map_result| {
+                                        map_result
+                                            .as_ref()
+                                            .and_then(|r| r.as_ref().ok())
+                                            .is_some_and(|value| variable_value_is_set(value, variables))
                                     })
-                            }
-
-                            fn should_show_format_element_all<'a>(
-                                format_element: &FormatElement,
-                                variables: &'a VariableMapType<'a>,
-                            ) -> bool {
-                                match format_element {
-                                    FormatElement::Variable(_)
-                                    | FormatElement::GuardVariable(_) => should_show_elements_all(
-                                        &[format_element.clone()],
-                                        variables,
-                                    ),
-                                    FormatElement::Conditional(format) => {
-                                        should_show_elements_all(format, variables)
-                                    }
-                                    FormatElement::AllConditional(format) => {
-                                        should_show_elements_all(format, variables)
-                                    }
-                                    FormatElement::TextGroup(textgroup) => textgroup
-                                        .format
-                                        .iter()
-                                        .any(|f| should_show_format_element_all(f, variables)),
-                                    FormatElement::Text(t) => !t.is_empty(),
-                                }
-                            }
-
-                            fn should_show_meta_var_all<'a>(
-                                format_elements: &[FormatElement],
-                                variables: &'a VariableMapType<'a>,
-                            ) -> bool {
-                                if !format_elements.get_variables().is_empty() {
-                                    return should_show_elements_all(format_elements, variables);
                                 }
 
-                                format_elements
-                                    .iter()
-                                    .any(|f| should_show_format_element_all(f, variables))
+                                // For OR mode, if a group contains guard constructs directly,
+                                // ignore normal Variable elements when computing visibility.
+                                let restrict_to_guards = matches!(mode, Mode::Any)
+                                    && elements.iter().any(|el| {
+                                        matches!(
+                                            el,
+                                            FormatElement::GuardVariable(_)
+                                                | FormatElement::AllConditional(_)
+                                        )
+                                    });
+
+                                let mut has_vars = false;
+                                let mut result = match mode {
+                                    Mode::Any => false,
+                                    Mode::All => true,
+                                };
+
+                                for el in elements {
+                                    let (child_has_var, child_value) = match el {
+                                        FormatElement::Variable(name) => {
+                                            if restrict_to_guards {
+                                                (false, match mode {
+                                                    Mode::Any => false,
+                                                    Mode::All => true, // neutral for AND when ignored
+                                                })
+                                            } else {
+                                                (true, var_name_is_set(name, variables))
+                                            }
+                                        }
+                                        FormatElement::GuardVariable(name) => {
+                                            (true, var_name_is_set(name, variables))
+                                        }
+                                        FormatElement::Conditional(inner) => {
+                                            // Treat Conditional as a single OR guard unit.
+                                            let (hv, or_true) =
+                                                eval_elements(inner, variables, Mode::Any);
+                                            (hv, or_true)
+                                        }
+                                        FormatElement::AllConditional(inner) => {
+                                            // Nested AllConditional: AND unit.
+                                            let (hv, all_true) =
+                                                eval_elements(inner, variables, Mode::All);
+                                            (hv, all_true)
+                                        }
+                                        FormatElement::TextGroup(textgroup) => {
+                                            // Evaluate the inner format using the same mode.
+                                            let (hv, val) = eval_elements(
+                                                &textgroup.format,
+                                                variables,
+                                                mode,
+                                            );
+                                            (hv, val)
+                                        }
+                                        FormatElement::Text(_) => {
+                                            // Text should not influence variable presence.
+                                            // For OR: contributes false; For ALL: neutral true.
+                                            (
+                                                false,
+                                                match mode {
+                                                    Mode::Any => false,
+                                                    Mode::All => true,
+                                                },
+                                            )
+                                        }
+                                    };
+
+                                    has_vars |= child_has_var;
+                                    match mode {
+                                        Mode::Any => {
+                                            if child_value {
+                                                result = true;
+                                                // Early exit possible, but keep scanning to compute has_vars accurately.
+                                            }
+                                        }
+                                        Mode::All => {
+                                            if !child_value {
+                                                result = false;
+                                                // Keep scanning to compute has_vars across all children.
+                                            }
+                                        }
+                                    }
+                                }
+
+                                (has_vars, result)
                             }
 
-                            let should_show: bool = should_show_elements_all(&format, variables);
+                            // Top-level check for AllConditional: require at least one variable-like
+                            // element to be present, and all those elements to evaluate to true.
+                            fn should_show_elements_all<'a>(
+                                elements: &[FormatElement],
+                                variables: &'a VariableMapType<'a>,
+                            ) -> bool {
+                                let (has_vars, all_true) = eval_elements(elements, variables, Mode::All);
+                                has_vars && all_true
+                            }
+
+                            let should_show = should_show_elements_all(&format, variables);
 
                             if should_show {
                                 parse_format(format, style, variables, style_variables, context)
