@@ -134,6 +134,20 @@ pub fn get_prompt(context: &Context) -> String {
                     } else {
                         &*context.root_config.success_style
                     }
+                } else if exit_code_int == 130 {
+                    if context.uid == 0 {
+                        if context.root_config.sigint_failure {
+                            &*context.root_config.root_failure_style
+                        } else {
+                            &*context.root_config.root_success_style
+                        }
+                    } else {
+                        if context.root_config.sigint_failure {
+                            &*context.root_config.failure_style
+                        } else {
+                            &*context.root_config.success_style
+                        }
+                    }
                 } else {
                     if context.uid == 0 {
                         &*context.root_config.root_failure_style

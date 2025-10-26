@@ -36,7 +36,7 @@ use terminal_size::terminal_size;
 pub struct Context<'a> {
     /// The deserialized configuration map from the user's `starship.toml` file.
     pub config: StarshipConfig,
-    
+
     /// The user's UID.
     pub uid: nix::libc::uid_t,
 

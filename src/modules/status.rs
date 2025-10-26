@@ -163,17 +163,31 @@ fn format_exit_code<'a>(
                 _ => None,
             })
             .map_style(|variable| match variable {
-                "style" => Some(Ok(if context.uid == 0 {
-                    if exit_code_int == 0 {
+                "style" => Some(Ok(if exit_code_int == 0 {
+                    if context.uid == 0 {
                         config.root_success_style
                     } else {
-                        config.root_failure_style
+                        config.success_style
+                    }
+                } else if exit_code_int == 130 {
+                    if context.uid == 0 {
+                        if context.root_config.sigint_failure {
+                            &*config.root_failure_style
+                        } else {
+                            &*config.root_success_style
+                        }
+                    } else {
+                        if context.root_config.sigint_failure {
+                            &*config.failure_style
+                        } else {
+                            &*config.success_style
+                        }
                     }
                 } else {
-                    if exit_code_int == 0 {
-                        config.success_style
+                    if context.uid == 0 {
+                        &*config.root_failure_style
                     } else {
-                        config.failure_style
+                        &*config.failure_style
                     }
                 }
                 .unwrap_or(config.style))),

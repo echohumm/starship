@@ -343,8 +343,8 @@ impl<'a> StringFormatter<'a> {
                                 }
                             })
                             .unwrap_or_else(|| Ok(Vec::new())),
-                                                        // GuardVariable participates in conditionals but does not render output
-                                                        FormatElement::GuardVariable(_name) => Ok(Vec::new()),
+                        // GuardVariable participates in conditionals but does not render output
+                        FormatElement::GuardVariable(_name) => Ok(Vec::new()),
                         FormatElement::Conditional(format) => {
                             // Show the conditional format string if any subelement would render.
                             // Variables inside an AllConditional only contribute if that group would render.
@@ -357,10 +357,13 @@ impl<'a> StringFormatter<'a> {
                                 fn contains_guard_constructs(elements: &[FormatElement]) -> bool {
                                     // Only consider guard constructs that are direct children of this group.
                                     // Do not recurse into nested conditionals/textgroups to avoid affecting parent groups.
-                                    elements.iter().any(|el| matches!(
-                                        el,
-                                        FormatElement::GuardVariable(_) | FormatElement::AllConditional(_)
-                                    ))
+                                    elements.iter().any(|el| {
+                                        matches!(
+                                            el,
+                                            FormatElement::GuardVariable(_)
+                                                | FormatElement::AllConditional(_)
+                                        )
+                                    })
                                 }
 
                                 let restrict_to_guards = contains_guard_constructs(format_elements);
@@ -441,12 +444,14 @@ impl<'a> StringFormatter<'a> {
                                 match format_element {
                                     // Should not usually happen, but if it does, check if the variable
                                     // is set using `should_show_elements`.
-                                    FormatElement::Variable(_) => {
-                                        should_show_elements(std::slice::from_ref(format_element), variables)
-                                    }
-                                    FormatElement::GuardVariable(_) => {
-                                        should_show_elements(std::slice::from_ref(format_element), variables)
-                                    }
+                                    FormatElement::Variable(_) => should_show_elements(
+                                        std::slice::from_ref(format_element),
+                                        variables,
+                                    ),
+                                    FormatElement::GuardVariable(_) => should_show_elements(
+                                        std::slice::from_ref(format_element),
+                                        variables,
+                                    ),
                                     FormatElement::Conditional(format) => {
                                         should_show_elements(format, variables)
                                     }
@@ -520,9 +525,11 @@ impl<'a> StringFormatter<'a> {
                                 variables: &'a VariableMapType<'a>,
                             ) -> bool {
                                 match format_element {
-                                    FormatElement::Variable(_) | FormatElement::GuardVariable(_) => {
-                                        should_show_elements_all(&[format_element.clone()], variables)
-                                    }
+                                    FormatElement::Variable(_)
+                                    | FormatElement::GuardVariable(_) => should_show_elements_all(
+                                        &[format_element.clone()],
+                                        variables,
+                                    ),
                                     FormatElement::Conditional(format) => {
                                         should_show_elements_all(format, variables)
                                     }
@@ -532,9 +539,7 @@ impl<'a> StringFormatter<'a> {
                                     FormatElement::TextGroup(textgroup) => textgroup
                                         .format
                                         .iter()
-                                        .any(|f| {
-                                            should_show_format_element_all(f, variables)
-                                        }),
+                                        .any(|f| should_show_format_element_all(f, variables)),
                                     // For 'all' checks, plain text alone should not trigger
                                     FormatElement::Text(t) => !t.is_empty(),
                                 }
@@ -602,9 +607,11 @@ impl<'a> StringFormatter<'a> {
                                 variables: &'a VariableMapType<'a>,
                             ) -> bool {
                                 match format_element {
-                                    FormatElement::Variable(_) | FormatElement::GuardVariable(_) => {
-                                        should_show_elements_all(&[format_element.clone()], variables)
-                                    }
+                                    FormatElement::Variable(_)
+                                    | FormatElement::GuardVariable(_) => should_show_elements_all(
+                                        &[format_element.clone()],
+                                        variables,
+                                    ),
                                     FormatElement::Conditional(format) => {
                                         should_show_elements_all(format, variables)
                                     }
@@ -614,9 +621,7 @@ impl<'a> StringFormatter<'a> {
                                     FormatElement::TextGroup(textgroup) => textgroup
                                         .format
                                         .iter()
-                                        .any(|f| {
-                                            should_show_format_element_all(f, variables)
-                                        }),
+                                        .any(|f| should_show_format_element_all(f, variables)),
                                     FormatElement::Text(t) => !t.is_empty(),
                                 }
                             }
