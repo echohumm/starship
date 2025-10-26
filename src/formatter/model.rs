@@ -23,8 +23,8 @@ pub enum FormatElement<'a> {
     Variable(Cow<'a, str>),
     GuardVariable(Cow<'a, str>),
     TextGroup(TextGroup<'a>),
-    Conditional(Vec<FormatElement<'a>>),
-    AllConditional(Vec<FormatElement<'a>>),
+    Conditional(Vec<Self>),
+    AllConditional(Vec<Self>),
 }
 
 #[derive(Clone)]
