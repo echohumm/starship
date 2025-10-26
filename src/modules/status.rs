@@ -122,6 +122,10 @@ fn format_exit_code<'a>(
         return Ok(Vec::new());
     };
 
+    if exit_code_int == 130 && !context.root_config.sigint_failure {
+        return Ok(Vec::new());
+    }
+
     let hex_status = format!("0x{exit_code_int:X}");
 
     let common_meaning = status_common_meaning(exit_code_int);

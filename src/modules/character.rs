@@ -27,7 +27,8 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     let props = &context.properties;
     let exit_code = props.status_code.as_deref().unwrap_or("0");
     let keymap = props.keymap.as_str();
-    let exit_success = exit_code == "0";
+    let exit_success =
+        exit_code == "0" || !context.root_config.sigint_failure && exit_code == "130";
 
     // Match shell "keymap" names to normalized vi modes
     // NOTE: in vi mode, fish reports normal mode as "default".

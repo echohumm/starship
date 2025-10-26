@@ -21,8 +21,8 @@ impl Default for CConfig<'_> {
             style: "149 bold",
             symbol: "C ",
             disabled: false,
-            detect_extensions: vec!["c", "h"],
-            detect_files: vec![],
+            detect_extensions: vec![],
+            detect_files: vec!["Makefile", "CMakeLists.txt"],
             detect_folders: vec![],
             commands: vec![
                 // the compiler is usually cc, and --version works on gcc and clang
