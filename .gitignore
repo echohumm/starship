@@ -34,3 +34,4 @@ docs/.vitepress/cache/
 install/**/*.pkg
 /pkg
 *.zst
+Cargo.lock
