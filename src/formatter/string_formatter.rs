@@ -352,9 +352,22 @@ impl<'a> StringFormatter<'a> {
                                 format_elements: &[FormatElement],
                                 variables: &'a VariableMapType<'a>,
                             ) -> bool {
+                                // If a group contains guard constructs, only those constructs
+                                // (GuardVariable or AllConditional) should determine visibility.
+                                fn contains_guard_constructs(elements: &[FormatElement]) -> bool {
+                                    // Only consider guard constructs that are direct children of this group.
+                                    // Do not recurse into nested conditionals/textgroups to avoid affecting parent groups.
+                                    elements.iter().any(|el| matches!(
+                                        el,
+                                        FormatElement::GuardVariable(_) | FormatElement::AllConditional(_)
+                                    ))
+                                }
+
+                                let restrict_to_guards = contains_guard_constructs(format_elements);
+
                                 format_elements.iter().any(|el| match el {
-                                    FormatElement::Variable(name)
-                                    | FormatElement::GuardVariable(name) => {
+                                    // Normal variables only contribute if there are no guard constructs.
+                                    FormatElement::Variable(name) if !restrict_to_guards => {
                                         variables.get(name.as_ref()).is_some_and(|map_result| {
                                             map_result
                                                 .as_ref()
@@ -379,10 +392,38 @@ impl<'a> StringFormatter<'a> {
                                                 })
                                         })
                                     }
+                                    // Ignore normal variables for visibility if we restrict to guards.
+                                    FormatElement::Variable(_) => false,
+                                    // Guard variables always contribute when set.
+                                    FormatElement::GuardVariable(name) => {
+                                        variables.get(name.as_ref()).is_some_and(|map_result| {
+                                            map_result
+                                                .as_ref()
+                                                .and_then(|result| result.as_ref().ok())
+                                                .is_some_and(|result| match result {
+                                                    VariableValue::Meta(meta_elements) => {
+                                                        let meta_variables =
+                                                            clone_without_meta(variables);
+                                                        should_show_meta_var(
+                                                            meta_elements,
+                                                            &meta_variables,
+                                                        )
+                                                    }
+                                                    VariableValue::Plain(v) => !v.is_empty(),
+                                                    VariableValue::NoEscapingPlain(v) => {
+                                                        !v.is_empty()
+                                                    }
+                                                    VariableValue::Styled(segments) => segments
+                                                        .iter()
+                                                        .any(|x| !x.value().is_empty()),
+                                                })
+                                        })
+                                    }
                                     FormatElement::AllConditional(inner) => {
                                         should_show_elements_all(inner, variables)
                                     }
                                     FormatElement::Conditional(inner) => {
+                                        // Propagate the guard restriction into nested conditionals.
                                         should_show_elements(inner, variables)
                                     }
                                     FormatElement::TextGroup(textgroup) => {
