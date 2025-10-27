@@ -19,6 +19,11 @@ fn parse_value(value: Pair<Rule>) -> FormatElement {
             let var = inner.next().unwrap();
             FormatElement::GuardVariable(parse_variable(var).into())
         }
+        Rule::anti_variable => {
+            let mut inner = value.into_inner();
+            let var = inner.next().unwrap();
+            FormatElement::AntiVariable(parse_variable(var).into())
+        }
         Rule::textgroup => FormatElement::TextGroup(parse_textgroup(value)),
         Rule::conditional => {
             FormatElement::Conditional(parse_format(value.into_inner().next().unwrap()))

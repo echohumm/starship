@@ -4,7 +4,7 @@
 //
 // Should be started with SOI and ended with EOI, with a format string in it.
 expression = _{ SOI ~ value* ~ EOI }
-value = _{ guard_variable | variable | textgroup | all_conditional | conditional | text }
+value = _{ guard_variable | anti_variable | variable | textgroup | all_conditional | conditional | text }
 
 // Variable
 //
@@ -21,6 +21,7 @@ variable = { "$" ~ (variable_name | variable_scope) }
 //
 // Non-rendering variable that participates in condition checks but does not render.
 guard_variable = { "?" ~ variable }
+anti_variable = { "!" ~ variable }
 variable_name = @{ ('a'..'z' | 'A'..'Z' | "_") ~ char* }
 char = _{ 'a'..'z' | 'A'..'Z' | '0'..'9' | "_" }
 

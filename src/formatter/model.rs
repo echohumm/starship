@@ -22,6 +22,7 @@ pub enum FormatElement<'a> {
     Text(Cow<'a, str>),
     Variable(Cow<'a, str>),
     GuardVariable(Cow<'a, str>),
+    AntiVariable(Cow<'a, str>),
     TextGroup(TextGroup<'a>),
     Conditional(Vec<Self>),
     AllConditional(Vec<Self>),
@@ -36,7 +37,7 @@ pub enum StyleElement<'a> {
 impl<'a> VariableHolder<Cow<'a, str>> for FormatElement<'a> {
     fn get_variables(&self) -> BTreeSet<Cow<'a, str>> {
         match self {
-            Self::Variable(var) | Self::GuardVariable(var) => {
+            Self::Variable(var) | Self::GuardVariable(var) | Self::AntiVariable(var) => {
                 let mut variables = BTreeSet::new();
                 variables.insert(var.clone());
                 variables
