@@ -28,6 +28,8 @@ pub struct DirectoryConfig<'a> {
     pub truncation_symbol: &'a str,
     pub home_symbol: &'a str,
     pub root_abbr_home: bool,
+    pub prepend_to_nonhome_dir: Option<&'a str>,
+    pub append_to_nonhome_dir: Option<&'a str>,
     pub use_os_path_sep: bool,
 }
 
@@ -52,6 +54,8 @@ impl Default for DirectoryConfig<'_> {
             truncation_symbol: "",
             home_symbol: "~",
             root_abbr_home: false,
+            prepend_to_nonhome_dir: None,
+            append_to_nonhome_dir: None,
             use_os_path_sep: true,
         }
     }
