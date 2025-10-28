@@ -84,21 +84,13 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     let dir_string = substitute_path(dir_string, &config.substitutions);
 
     // Truncate the dir string to the maximum number of path components
-    let mut dir_string =
+    let dir_string =
         if let Some(truncated) = truncate(&dir_string, config.truncation_length as usize) {
             is_truncated = true;
             truncated
         } else {
             dir_string
         };
-
-    if dir_string != config.home_symbol && repo.is_none() && let Some(prefix) = config.prepend_to_nonhome_dir {
-        dir_string.insert_str(0, prefix);
-    }
-    
-    if dir_string != config.home_symbol && repo.is_none() && let Some(suffix) = config.append_to_nonhome_dir {
-        dir_string.push_str(&suffix);
-    }
 
     let prefix = if is_truncated {
         // Substitutions could have changed the prefix, so don't allow them and
@@ -192,6 +184,16 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
                     } else {
                         None
                     }
+                }
+                "prepend" => if dir_string != config.home_symbol && let Some(prefix) = config.prepend_to_nonhome_dir {
+                    Some(Ok(prefix))
+                } else {
+                    None
+                }
+                "append" => if dir_string != config.home_symbol && let Some(suffix) = config.append_to_nonhome_dir {
+                    Some(Ok(suffix))
+                } else {
+                    None
                 }
                 _ => None,
             })

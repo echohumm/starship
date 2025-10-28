@@ -1,6 +1,6 @@
 pkgname="starship"
 pkgver="1.24.0+3"
-pkgrel="1"
+pkgrel="2"
 pkgdesc="echohumm fork of starship"
 arch=('x86_64')
 url="https://github.com/echohumm/starship"
