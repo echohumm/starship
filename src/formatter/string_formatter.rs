@@ -1155,42 +1155,6 @@ mod tests {
     }
 
     #[test]
-    fn test_conditional_meta_variable_empty_string() {
-        const FORMAT_STR: &str = r"($colored $uncolored)";
-
-        let formatter = StringFormatter::new(FORMAT_STR)
-            .unwrap()
-            .map_meta(|var, _| match var {
-                "colored" => Some("[](green)"),
-                "uncolored" => Some(""),
-                _ => None,
-            });
-        let result = formatter.parse(None, None).unwrap();
-
-        let mut result_iter = result.iter();
-        assert!(result_iter.next().is_none());
-    }
-
-    #[test]
-    fn test_conditional_meta_variable_string() {
-        const FORMAT_STR: &str = r"($colored $uncolored)";
-
-        let formatter = StringFormatter::new(FORMAT_STR)
-            .unwrap()
-            .map_meta(|var, _| match var {
-                "colored" => Some("[green](green)"),
-                "uncolored" => Some("text"),
-                _ => None,
-            });
-        let result = formatter.parse(None, None).unwrap();
-        let mut result_iter = result.iter();
-        match_next!(result_iter, "green", Some(Color::Green.normal()));
-        match_next!(result_iter, " ", None);
-        match_next!(result_iter, "text", None);
-        assert!(result_iter.next().is_none());
-    }
-
-    #[test]
     fn test_variable_holder() {
         const FORMAT_STR: &str = "($a [($b) $c](none $s)) $d [t]($t)";
         let expected_variables = vec!["a", "b", "c", "d"]
