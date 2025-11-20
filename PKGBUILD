@@ -1,5 +1,5 @@
 pkgname="starship"
-pkgver="1.24.0+4"
+pkgver="1.24.1+1"
 pkgrel="1"
 pkgdesc="echohumm fork of starship"
 arch=('x86_64')
@@ -8,7 +8,7 @@ license=('ISC')
 depends=('glibc')
 
 build() {
-  cargo build --release --locked
+  cargo build --release 
 }
 
 package() {
