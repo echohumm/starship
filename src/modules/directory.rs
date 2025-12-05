@@ -152,6 +152,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         formatter
             .map_style(|variable| match variable {
                 "style" => Some(Ok({
+                    // TOFIX: this uses user_home_style when it shouldn't
                     if {
                         let resolved_home_prefix = if is_root && !config.root_abbr_home {
                             home_dir.to_slash_lossy()

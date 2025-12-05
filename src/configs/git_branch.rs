@@ -30,8 +30,8 @@ impl Default for GitBranchConfig<'_> {
             truncation_symbol: "…",
             only_attached: false,
             always_show_remote: false,
-            ignore_branches: vec![],
-            ignore_bare_repo: false,
+            ignore_branches: vec!["master", "main"],
+            ignore_bare_repo: true,
             disabled: false,
         }
     }
