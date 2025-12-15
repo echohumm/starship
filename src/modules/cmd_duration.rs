@@ -1,3 +1,4 @@
+use std::sync::atomic::Ordering;
 use super::{Context, Module, ModuleConfig};
 
 use crate::configs::cmd_duration::CmdDurationConfig;
@@ -47,6 +48,8 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
             return None;
         }
     });
+    
+    context.cmd_duration_shown.store(true, Ordering::Release);
 
     Some(undistract_me(module, &config, context, elapsed))
 }

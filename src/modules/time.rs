@@ -1,3 +1,4 @@
+use std::sync::atomic::Ordering;
 use chrono::{DateTime, FixedOffset, Local, NaiveTime, Utc};
 
 use super::{Context, Module, ModuleConfig};
@@ -18,7 +19,12 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     // Hide prompt if current time is not inside time_range
     let (display_start, display_end) = parse_time_range(config.time_range);
     let time_now = Local::now().time();
-    if !is_inside_time_range(time_now, display_start, display_end) {
+    // so, this does have the small problem that, outside the time range and if link_cmd_duration
+    //  is on, if cmd_duration runs after time, this may hang forever? idk how atomics work ngl,
+    //  this seems to work for me and that's all i care about
+    if !is_inside_time_range(time_now, display_start, display_end)
+        && (!config.link_cmd_duration || !context.cmd_duration_shown.load(Ordering::Acquire))
+    {
         return None;
     }
 

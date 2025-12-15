@@ -16,6 +16,7 @@ pub struct TimeConfig<'a> {
     pub disabled: bool,
     pub utc_time_offset: &'a str,
     pub time_range: &'a str,
+    pub link_cmd_duration: bool,
 }
 
 impl Default for TimeConfig<'_> {
@@ -28,6 +29,7 @@ impl Default for TimeConfig<'_> {
             disabled: true,
             utc_time_offset: "local",
             time_range: "-",
+            link_cmd_duration: true,
         }
     }
 }

@@ -1,5 +1,5 @@
 pkgname="starship"
-pkgver="1.24.1+4"
+pkgver="1.24.1+5"
 pkgrel="1"
 pkgdesc="echohumm fork of starship"
 arch=('x86_64')

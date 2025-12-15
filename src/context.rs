@@ -26,6 +26,7 @@ use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::string::String;
 use std::sync::{Arc, OnceLock, mpsc};
+use std::sync::atomic::AtomicBool;
 use std::thread;
 use std::time::{Duration, Instant};
 use terminal_size::terminal_size;
@@ -82,6 +83,8 @@ pub struct Context<'a> {
 
     /// Starship root config
     pub root_config: StarshipRootConfig,
+    
+    pub cmd_duration_shown: AtomicBool,
 
     pub repo_size: u64,
 
@@ -189,6 +192,7 @@ impl<'a> Context<'a> {
             #[cfg(feature = "battery")]
             battery_info_provider: &crate::modules::BatteryInfoProviderImpl,
             root_config,
+            cmd_duration_shown: AtomicBool::new(false),
             repo_size,
             _marker: PhantomData,
         }
