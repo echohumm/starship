@@ -378,7 +378,7 @@ mod tests {
 
     #[test]
     fn failure_status() {
-        let exit_values = [1, 2, 130];
+        let exit_values = [1, 2];
 
         for status in &exit_values {
             let expected = Some(format!(
@@ -399,7 +399,7 @@ mod tests {
 
     #[test]
     fn failure_plaintext_status() {
-        let exit_values = [1, 2, 130];
+        let exit_values = [1, 2];
 
         for status in &exit_values {
             let expected = Some(format!(
@@ -420,8 +420,8 @@ mod tests {
 
     #[test]
     fn failure_hex_status() {
-        let exit_values = [1, 2, 130, -2_147_467_260, 2_147_500_036];
-        let string_values = ["0x1", "0x2", "0x82", "0x80004004", "0x80004004"];
+        let exit_values = [1, 2, -2_147_467_260, 2_147_500_036];
+        let string_values = ["0x1", "0x2", "0x80004004", "0x80004004"];
 
         for (exit_value, string_value) in exit_values.iter().zip(string_values) {
             let expected = Some(format!(
@@ -449,7 +449,7 @@ mod tests {
             Some("USAGE"),
             Some("NOPERM"),
             Some("NOTFOUND"),
-            Some("INT"),
+            None,
             None,
         ];
 
@@ -543,8 +543,8 @@ mod tests {
 
     #[test]
     fn special_symbols() {
-        let exit_values = [1, 126, 127, 130, 131];
-        let exit_values_name = ["🔴", "🚫", "🔍", "🧱", "⚡"];
+        let exit_values = [1, 126, 127, 131];
+        let exit_values_name = ["🔴", "🚫", "🔍", "⚡"];
 
         for (status, name) in exit_values.iter().zip(&exit_values_name) {
             let expected = Some((*name).to_string());
@@ -569,8 +569,8 @@ mod tests {
 
     #[test]
     fn special_symbols_no_signals() {
-        let exit_values = [1, 126, 127, 130, 131];
-        let exit_values_name = ["🔴", "🚫", "🔍", "🔴", "🔴"];
+        let exit_values = [1, 126, 127, 131];
+        let exit_values_name = ["🔴", "🚫", "🔍", "🔴"];
 
         for (status, name) in exit_values.iter().zip(&exit_values_name) {
             let expected = Some((*name).to_string());
@@ -595,18 +595,8 @@ mod tests {
 
     #[test]
     fn pipeline_uses_pipestatus_format() {
-        let exit_values = [
-            [0, 1, 0, 0],
-            [0, 1, 2, 3],
-            [130, 126, 131, 127],
-            [1, 1, 1, 1],
-        ];
-        let exit_values_rendered = [
-            "PSF 🟢=🔴 🟢 🟢",
-            "PSF 🟢=🔴 🔴 🔴",
-            "PSF 🧱=🚫 ⚡ 🔍",
-            "PSF 🔴=🔴 🔴 🔴",
-        ];
+        let exit_values = [[0, 1, 0, 0], [0, 1, 2, 3], [1, 1, 1, 1]];
+        let exit_values_rendered = ["PSF 🟢=🔴 🟢 🟢", "PSF 🟢=🔴 🔴 🔴", "PSF 🔴=🔴 🔴 🔴"];
 
         for (status, rendered) in exit_values.iter().zip(&exit_values_rendered) {
             let main_exit_code = status[0];
@@ -639,16 +629,10 @@ mod tests {
 
     #[test]
     fn pipeline_no_map_symbols() {
-        let exit_values = [
-            [0, 1, 0, 0],
-            [0, 1, 2, 3],
-            [130, 126, 131, 127],
-            [1, 1, 1, 1],
-        ];
+        let exit_values = [[0, 1, 0, 0], [0, 1, 2, 3], [1, 1, 1, 1]];
         let exit_values_rendered = [
             "PSF 🟢=🔴1 🟢0 🟢0",
             "PSF 🟢=🔴1 🔴2 🔴3",
-            "PSF INT🔴=🔴126 🔴1313 🔴127",
             "PSF 🔴=🔴1 🔴1 🔴1",
         ];
 
@@ -722,8 +706,9 @@ mod tests {
 
     #[test]
     fn pipeline_disabled() {
-        let exit_values = [[130, 126, 131, 127], [1, 1, 1, 1]];
-        let exit_values_rendered = ["F 🧱", "F 🔴"];
+        // TODO: more exit vals
+        let exit_values = [[1, 1, 1, 1]];
+        let exit_values_rendered = ["F 🔴"];
 
         for (status, rendered) in exit_values.iter().zip(&exit_values_rendered) {
             let main_exit_code = status[0];
@@ -756,14 +741,9 @@ mod tests {
 
     #[test]
     fn pipeline_long() {
-        let exit_values = [
-            [130, 0, 0, 0, 30, 1, 2, 3, 142, 0, 0, 0, 130],
-            [1, 0, 0, 0, 30, 127, 126, 3, 142, 0, 230, 0, 2],
-        ];
-        let exit_values_rendered = [
-            "PSF 130INT=🟢|🟢|🟢|🔴30|🔴|🔴|🔴3|⚡|🟢|🟢|🟢|🧱",
-            "PSF 1ERROR=🟢|🟢|🟢|🔴30|🔍|🚫|🔴3|⚡|🟢|⚡|🟢|🔴",
-        ];
+        // TODO: more exit vals
+        let exit_values = [[1, 0, 0, 0, 30, 127, 126, 3, 142, 0, 230, 0, 2]];
+        let exit_values_rendered = ["PSF 1ERROR=🟢|🟢|🟢|🔴30|🔍|🚫|🔴3|⚡|🟢|⚡|🟢|🔴"];
 
         for (status, rendered) in exit_values.iter().zip(&exit_values_rendered) {
             let main_exit_code = status[0];

@@ -4,7 +4,6 @@ use crate::context_env::Env;
 use crate::module::Module;
 use crate::utils::{CommandOutput, PathExt, create_command, exec_timeout, read_file};
 
-use crate::modules;
 use crate::utils;
 use clap::Parser;
 use gix::{
@@ -236,7 +235,7 @@ impl<'a> Context<'a> {
     /// Create a new module
     pub fn new_module(&self, name: &str) -> Module<'_> {
         let config = self.config.get_module_config(name);
-        let desc = modules::description(name);
+        let desc = crate::modules::description(name);
 
         Module::new(name, desc, config)
     }

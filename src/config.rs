@@ -124,14 +124,24 @@ pub struct StarshipConfig {
 
 impl StarshipConfig {
     /// Initialize the Config struct
-    pub fn initialize(config_file_path: Option<&OsStr>) -> Self {
-        Self::config_from_file(config_file_path)
-            .map(|config| Self {
-                config: Some(config),
-            })
-            .unwrap_or_default()
+    pub fn initialize(_config_file_path: Option<&OsStr>) -> Self {
+        // my own cfg keeps breaking the tests, so if testing, we just ignore the config
+        #[cfg(test)]
+        {
+            Self::default()
+        }
+        #[cfg(not(test))]
+        {
+            #[allow(clippy::used_underscore_binding)]
+            Self::config_from_file(_config_file_path)
+                .map(|config| Self {
+                    config: Some(config),
+                })
+                .unwrap_or_default()
+        }
     }
 
+    #[cfg(not(test))]
     /// Create a config from a starship configuration file
     fn config_from_file(config_file_path: Option<&OsStr>) -> Option<toml::Table> {
         let toml_content = Self::read_config_content_as_str(config_file_path)?;

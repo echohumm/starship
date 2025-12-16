@@ -788,7 +788,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("⇣");
+        let expected = format_output("B");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -823,7 +823,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("⇡");
+        let expected = format_output("A");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -858,7 +858,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("⇕");
+        let expected = format_output("D");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -947,7 +947,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("=");
+        let expected = format_output("N");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1161,7 +1161,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("+");
+        let expected = format_output("S");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1176,7 +1176,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("!");
+        let expected = format_output("M");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1231,7 +1231,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("!");
+        let expected = format_output("M");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1246,7 +1246,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("+");
+        let expected = format_output("S");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1313,7 +1313,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("!+");
+        let expected = format_output("MS");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1328,7 +1328,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("»");
+        let expected = format_output("R");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1362,7 +1362,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("»!");
+        let expected = format_output("RM");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1377,7 +1377,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("✘");
+        let expected = format_output("X");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1392,7 +1392,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("✘");
+        let expected = format_output("X");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1426,7 +1426,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("+");
+        let expected = format_output("S");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1451,7 +1451,7 @@ pub(crate) mod tests {
         let actual = ModuleRenderer::new("git_status")
             .path(repo_dir.path())
             .collect();
-        let expected = format_output("✘?");
+        let expected = format_output("X?");
 
         assert_eq!(expected, actual);
         worktree_dir.close()?;

@@ -132,7 +132,7 @@ mod tests {
             .cmd_duration(5000)
             .collect();
 
-        let expected = Some(format!("took {} ", Color::Yellow.bold().paint("5s")));
+        let expected = Some(format!("took {} ", Color::Yellow.bold().paint("05.000")));
         assert_eq!(expected, actual);
     }
 
@@ -160,7 +160,7 @@ mod tests {
             .cmd_duration(10000)
             .collect();
 
-        let expected = Some(format!("took {} ", Color::Yellow.bold().paint("10s")));
+        let expected = Some(format!("took {} ", Color::Yellow.bold().paint("10.000")));
         assert_eq!(expected, actual);
     }
 
@@ -188,7 +188,7 @@ mod tests {
             .cmd_duration(5000)
             .collect();
 
-        let expected = Some(format!("underwent {} ", Color::Yellow.bold().paint("5s")));
+        let expected = Some(format!("underwent {} ", Color::Yellow.bold().paint("05.000")));
         assert_eq!(expected, actual);
     }
 }

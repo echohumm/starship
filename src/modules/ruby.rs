@@ -195,7 +195,7 @@ mod tests {
             )
             .config(toml::toml! {
                 [ruby]
-                format = "via [$symbol($version)@($gemset )]($style)"
+                format = "via [$symbol($version)\\@($gemset )]($style)"
                 version_format = "${raw}"
             })
             .collect();

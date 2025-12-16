@@ -1,10 +1,7 @@
 use crate::context::{Context, Properties, Shell, Target};
 use crate::context_env::Env;
 use crate::logger::StarshipLogger;
-use crate::{
-    config::StarshipConfig,
-    utils::{CommandOutput, create_command},
-};
+use crate::utils::{create_command, CommandOutput};
 use log::{Level, LevelFilter};
 use std::fs;
 use std::io;
@@ -37,16 +34,14 @@ fn init_logger() {
 }
 
 pub fn default_context() -> Context<'static> {
-    let mut context = Context::new_with_shell_and_path(
+    Context::new_with_shell_and_path(
         Properties::default(),
         Shell::Unknown,
         Target::Main,
         PathBuf::new(),
         PathBuf::new(),
         Env::default(),
-    );
-    context.config = StarshipConfig { config: None };
-    context
+    )
 }
 
 /// Render a specific starship module by name

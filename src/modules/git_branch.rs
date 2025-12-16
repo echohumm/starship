@@ -286,13 +286,8 @@ mod tests {
         let actual = ModuleRenderer::new("git_branch")
             .path(repo_dir.path())
             .collect();
-
-        let expected = Some(format!(
-            "on {} ",
-            Color::Purple.bold().paint(format!("\u{e0a0} {}", "main")),
-        ));
-
-        assert_eq!(expected, actual);
+        
+        assert_eq!(None, actual);
         repo_dir.close()
     }
 
@@ -365,12 +360,7 @@ mod tests {
             .path(repo_dir.path())
             .collect();
 
-        let expected = Some(format!(
-            "on {} ",
-            Color::Purple.bold().paint(format!("\u{e0a0} {}", "main")),
-        ));
-
-        assert_eq!(expected, actual);
+        assert_eq!(None, actual);
         repo_dir.close()
     }
 

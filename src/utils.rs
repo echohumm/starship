@@ -697,9 +697,9 @@ pub fn exec_timeout(cmd: &mut Command, time_limit: Duration) -> Option<CommandOu
 // Render the time into a nice human-readable string
 pub fn render_time(raw_millis: u128, show_millis: bool) -> String {
     // Fast returns for zero cases to render something
+    let mut out = String::new();
     match (raw_millis, show_millis) {
-        (0, true) => return "0.000".into(),
-        (0..=999, false) => return String::new(),
+        (0, true) | (0..=999, false) => return out,
         _ => (),
     }
 
@@ -709,7 +709,6 @@ pub fn render_time(raw_millis: u128, show_millis: bool) -> String {
     let (minutes, raw_hours) = (raw_minutes % 60, raw_minutes / 60);
     let (hours, days) = (raw_hours % 24, raw_hours / 24);
 
-    let mut out = String::new();
     let mut started = false;
 
     let components = [
@@ -798,7 +797,7 @@ mod tests {
 
     #[test]
     fn render_time_test_0ms() {
-        assert_eq!(render_time(0_u128, true), "0.000");
+        assert_eq!(render_time(0_u128, true), "");
     }
     #[test]
     fn render_time_test_0s() {

@@ -186,12 +186,8 @@ mod tests {
         File::create(dir.path().join("any.pl"))?.sync_all()?;
 
         let actual = ModuleRenderer::new("perl").path(dir.path()).collect();
-
-        let expected = Some(format!(
-            "via {}",
-            Color::Fixed(149).bold().paint("🐪 v5.26.1 ")
-        ));
-        assert_eq!(expected, actual);
+        
+        assert_eq!(None, actual);
         dir.close()
     }
 

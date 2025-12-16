@@ -25,7 +25,7 @@ impl Default for CmdDurationConfig<'_> {
         Self {
             min_time: 2_000,
             format: "took [$duration]($style) ",
-            show_milliseconds: false,
+            show_milliseconds: true,
             style: "yellow bold",
             disabled: false,
             show_notifications: false,
