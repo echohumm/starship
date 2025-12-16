@@ -698,7 +698,6 @@ pub fn exec_timeout(cmd: &mut Command, time_limit: Duration) -> Option<CommandOu
 pub fn render_time(raw_millis: u128, show_millis: bool) -> String {
     // Fast returns for zero cases to render something
     match (raw_millis, show_millis) {
-        (0, true) => return "0ms".into(),
         (0, true) => return "0.000".into(),
         (0..=999, false) => return String::new(),
         _ => (),
