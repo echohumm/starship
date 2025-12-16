@@ -27,7 +27,7 @@ impl Default for GitMetricsConfig<'_> {
             format: "([+$added]($added_style) )([-$deleted]($deleted_style) )",
             disabled: true,
             ignore_submodules: false,
-            skip_threshold: const { 2 * 1024 * 1024 }
+            skip_threshold: const { 2 * 1024 * 1024 },
         }
     }
 }

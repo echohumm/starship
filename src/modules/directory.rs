@@ -158,11 +158,15 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
                         Cow::from("~")
                     };
                     let home = path_vec[2].starts_with(resolved_home_prefix.as_ref());
-                    if home && is_root
+                    if home
+                        && is_root
                         && let Some(rhs) = config.root_home_style
                     {
                         rhs
-                    } else if !is_root && home && let Some(rhs) = config.user_home_style {
+                    } else if home
+                        && !is_root
+                        && let Some(rhs) = config.user_home_style
+                    {
                         rhs
                     } else {
                         config.style
@@ -184,15 +188,23 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
                         None
                     }
                 }
-                "prepend" => if dir_string != config.home_symbol && let Some(prefix) = config.prepend_to_nonhome_dir {
-                    Some(Ok(prefix))
-                } else {
-                    None
+                "prepend" => {
+                    if dir_string != config.home_symbol
+                        && let Some(prefix) = config.prepend_to_nonhome_dir
+                    {
+                        Some(Ok(prefix))
+                    } else {
+                        None
+                    }
                 }
-                "append" => if dir_string != config.home_symbol && let Some(suffix) = config.append_to_nonhome_dir {
-                    Some(Ok(suffix))
-                } else {
-                    None
+                "append" => {
+                    if dir_string != config.home_symbol
+                        && let Some(suffix) = config.append_to_nonhome_dir
+                    {
+                        Some(Ok(suffix))
+                    } else {
+                        None
+                    }
                 }
                 _ => None,
             })
