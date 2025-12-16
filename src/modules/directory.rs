@@ -152,19 +152,17 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         formatter
             .map_style(|variable| match variable {
                 "style" => Some(Ok({
-                    // TOFIX: this uses user_home_style when it shouldn't
-                    if {
-                        let resolved_home_prefix = if is_root && !config.root_abbr_home {
-                            home_dir.to_slash_lossy()
-                        } else {
-                            Cow::from("~")
-                        };
-                        path_vec[2].starts_with(resolved_home_prefix.as_ref())
-                    } && is_root
+                    let resolved_home_prefix = if is_root && !config.root_abbr_home {
+                        home_dir.to_slash_lossy()
+                    } else {
+                        Cow::from("~")
+                    };
+                    let home = path_vec[2].starts_with(resolved_home_prefix.as_ref());
+                    if home && is_root
                         && let Some(rhs) = config.root_home_style
                     {
                         rhs
-                    } else if !is_root && let Some(rhs) = config.user_home_style {
+                    } else if !is_root && home && let Some(rhs) = config.user_home_style {
                         rhs
                     } else {
                         config.style
