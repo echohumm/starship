@@ -510,10 +510,10 @@ pub enum Detected {
 }
 
 fn home_dir(env: &Env) -> Option<PathBuf> {
-    if cfg!(test) {
-        if let Some(home) = env.get_env("HOME") {
-            return Some(PathBuf::from(home));
-        }
+    if cfg!(test)
+        && let Some(home) = env.get_env("HOME")
+    {
+        return Some(PathBuf::from(home));
     }
     utils::home_dir()
 }
