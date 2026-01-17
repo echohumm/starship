@@ -10,6 +10,9 @@ use std::time::{Duration, Instant};
 use crate::context::Context;
 use crate::context::Shell;
 
+/// Default timeout for command execution in milliseconds
+pub const DEFAULT_COMMAND_TIMEOUT_MS: u64 = 500;
+
 /// Create a `PathBuf` from an absolute path, where the root directory will be mocked in test
 #[cfg(not(test))]
 #[inline]
@@ -317,7 +320,7 @@ Elixir 1.10 (compiled with Erlang/OTP 22)\n",
             stdout: String::from("9.2.1\n"),
             stderr: String::default(),
         }),
-        "helm version --short --client" => Some(CommandOutput {
+        "helm version --short" => Some(CommandOutput {
             stdout: String::from("v3.1.1+gafe7058\n"),
             stderr: String::default(),
         }),
@@ -833,7 +836,7 @@ mod tests {
         let result = exec_cmd(
             "dummy_command",
             &[] as &[&OsStr],
-            Duration::from_millis(500),
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
         );
         let expected = Some(CommandOutput {
             stdout: String::from("stdout ok!\n"),
@@ -849,7 +852,11 @@ mod tests {
     #[test]
     #[cfg(not(windows))]
     fn exec_no_output() {
-        let result = internal_exec_cmd("true", &[] as &[&OsStr], Duration::from_millis(500));
+        let result = internal_exec_cmd(
+            "true",
+            &[] as &[&OsStr],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
         let expected = Some(CommandOutput {
             stdout: String::new(),
             stderr: String::new(),
@@ -861,8 +868,11 @@ mod tests {
     #[test]
     #[cfg(not(windows))]
     fn exec_with_output_stdout() {
-        let result =
-            internal_exec_cmd("/bin/sh", &["-c", "echo hello"], Duration::from_millis(500));
+        let result = internal_exec_cmd(
+            "/bin/sh",
+            &["-c", "echo hello"],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
         let expected = Some(CommandOutput {
             stdout: String::from("hello\n"),
             stderr: String::new(),
@@ -877,7 +887,7 @@ mod tests {
         let result = internal_exec_cmd(
             "/bin/sh",
             &["-c", "echo hello >&2"],
-            Duration::from_millis(500),
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
         );
         let expected = Some(CommandOutput {
             stdout: String::new(),
@@ -893,7 +903,7 @@ mod tests {
         let result = internal_exec_cmd(
             "/bin/sh",
             &["-c", "echo hello; echo world >&2"],
-            Duration::from_millis(500),
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
         );
         let expected = Some(CommandOutput {
             stdout: String::from("hello\n"),
@@ -906,7 +916,11 @@ mod tests {
     #[test]
     #[cfg(not(windows))]
     fn exec_with_non_zero_exit_code() {
-        let result = internal_exec_cmd("false", &[] as &[&OsStr], Duration::from_millis(500));
+        let result = internal_exec_cmd(
+            "false",
+            &[] as &[&OsStr],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
         let expected = None;
 
         assert_eq!(result, expected);
@@ -915,7 +929,11 @@ mod tests {
     #[test]
     #[cfg(not(windows))]
     fn exec_slow_command() {
-        let result = internal_exec_cmd("sleep", &["500"], Duration::from_millis(500));
+        let result = internal_exec_cmd(
+            "sleep",
+            &["500"],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
         let expected = None;
 
         assert_eq!(result, expected);
