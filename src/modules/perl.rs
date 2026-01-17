@@ -186,7 +186,7 @@ mod tests {
         File::create(dir.path().join("any.pl"))?.sync_all()?;
 
         let actual = ModuleRenderer::new("perl").path(dir.path()).collect();
-        
+
         assert_eq!(None, actual);
         dir.close()
     }

@@ -1,5 +1,5 @@
-use std::sync::atomic::Ordering;
 use chrono::{DateTime, FixedOffset, Local, NaiveTime, Utc};
+use std::sync::atomic::Ordering;
 
 use super::{Context, Module, ModuleConfig};
 use crate::configs::time::TimeConfig;

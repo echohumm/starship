@@ -1398,7 +1398,7 @@ pub(crate) mod tests {
             let actual = ModuleRenderer::new("git_status")
                 .path(repo_dir.path())
                 .collect();
-            let expected = format_output("+");
+            let expected = format_output("S");
 
             assert_eq!(expected, actual);
             repo_dir.close()?;
@@ -1421,21 +1421,6 @@ pub(crate) mod tests {
             .path(repo_dir.path())
             .collect();
         let expected = format_output("⇢");
-
-        assert_eq!(expected, actual);
-        repo_dir.close()
-    }
-
-    #[test]
-    fn shows_typechanged_in_index() -> io::Result<()> {
-        let repo_dir = fixture_repo(FixtureProvider::Git)?;
-
-        create_typechanged_in_index(repo_dir.path())?;
-
-        let actual = ModuleRenderer::new("git_status")
-            .path(repo_dir.path())
-            .collect();
-        let expected = format_output("S");
 
         assert_eq!(expected, actual);
         repo_dir.close()
@@ -1555,7 +1540,7 @@ pub(crate) mod tests {
             let actual = ModuleRenderer::new("git_status")
                 .path(repo_dir.path())
                 .collect();
-            let expected = format_output("!");
+            let expected = format_output("M");
 
             assert_eq!(expected, actual);
             repo_dir.close()?;

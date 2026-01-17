@@ -1,5 +1,5 @@
-use std::sync::atomic::Ordering;
 use super::{Context, Module, ModuleConfig};
+use std::sync::atomic::Ordering;
 
 use crate::configs::cmd_duration::CmdDurationConfig;
 use crate::formatter::StringFormatter;
@@ -48,7 +48,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
             return None;
         }
     });
-    
+
     context.cmd_duration_shown.store(true, Ordering::Release);
 
     Some(undistract_me(module, &config, context, elapsed))
@@ -193,7 +193,10 @@ mod tests {
             .cmd_duration(5000)
             .collect();
 
-        let expected = Some(format!("underwent {} ", Color::Yellow.bold().paint("05.000")));
+        let expected = Some(format!(
+            "underwent {} ",
+            Color::Yellow.bold().paint("05.000")
+        ));
         assert_eq!(expected, actual);
     }
 }

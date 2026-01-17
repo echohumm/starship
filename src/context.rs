@@ -24,8 +24,8 @@ use std::num::ParseIntError;
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 use std::string::String;
-use std::sync::{Arc, OnceLock, mpsc};
 use std::sync::atomic::AtomicBool;
+use std::sync::{Arc, OnceLock, mpsc};
 use std::thread;
 use std::time::{Duration, Instant};
 use terminal_size::terminal_size;
@@ -82,7 +82,7 @@ pub struct Context<'a> {
 
     /// Starship root config
     pub root_config: StarshipRootConfig,
-    
+
     pub cmd_duration_shown: AtomicBool,
 
     pub repo_size: u64,
