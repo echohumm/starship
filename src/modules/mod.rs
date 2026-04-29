@@ -6,9 +6,6 @@ mod bun;
 mod c;
 mod cc;
 mod character;
-mod claude_context;
-mod claude_cost;
-mod claude_model;
 mod cmake;
 mod cmd_duration;
 mod cobol;
@@ -132,9 +129,6 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
             "bun" => bun::module(context),
             "c" => c::module(context),
             "character" => character::module(context),
-            "claude_context" => claude_context::module(context),
-            "claude_cost" => claude_cost::module(context),
-            "claude_model" => claude_model::module(context),
             "cmake" => cmake::module(context),
             "cmd_duration" => cmd_duration::module(context),
             "cobol" => cobol::module(context),

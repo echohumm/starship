@@ -142,11 +142,6 @@ impl<'a> ModuleRenderer<'a> {
         self
     }
 
-    pub fn claude_code_data(mut self, data: crate::context::ClaudeCodeData) -> Self {
-        self.context.claude_code_data = Some(Box::new(data));
-        self
-    }
-
     #[cfg(feature = "battery")]
     pub fn battery_info_provider(
         mut self,

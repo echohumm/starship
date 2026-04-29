@@ -77,19 +77,6 @@ pub fn prompt(args: Properties, target: Target) {
     write!(handle, "{}", get_prompt(&context)).unwrap();
 }
 
-pub fn prompt_with_claude_code(args: Properties, target: Target) {
-    let claude_data = serde_json::from_reader(io::stdin())
-        .inspect_err(|e| log::error!("Failed to read Claude Code JSON from stdin: {e}"))
-        .unwrap_or_default();
-
-    let mut context = Context::new(args, target).with_claude_code_data(claude_data);
-    context.shell = Shell::Unknown;
-    let stdout = io::stdout();
-    let mut handle = stdout.lock();
-
-    write!(handle, "{}", get_prompt(&context)).unwrap();
-}
-
 pub fn get_prompt(context: &Context) -> String {
     let config = &context.root_config;
     let mut buf = String::new();
