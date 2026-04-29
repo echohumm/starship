@@ -1,6 +1,5 @@
 use crate::config::{ModuleConfig, StarshipConfig};
 use crate::configs::StarshipRootConfig;
-use crate::context_env::Env;
 use crate::module::Module;
 use crate::utils::{CommandOutput, PathExt, create_command, exec_timeout, read_file};
 
@@ -28,6 +27,8 @@ use std::sync::{Arc, OnceLock, mpsc};
 use std::thread;
 use std::time::{Duration, Instant};
 use terminal_size::terminal_size;
+
+pub use crate::utils::env::Env;
 
 /// Context contains data or common methods that may be used by multiple modules.
 /// The data contained within Context will be relevant to this particular rendering
@@ -86,6 +87,7 @@ pub struct Context<'a> {
 
     pub repo_size: u64,
 
+    // i am NOT supporting claude code
     /// Avoid issues with unused lifetimes when features are disabled
     _marker: PhantomData<&'a ()>,
 }
@@ -576,7 +578,7 @@ impl DirContents {
                 let dir_iter = fs::read_dir(base).unwrap();
                 let _ = dir_iter
                     .filter_map(|entry| entry.ok())
-                    .try_for_each(|entry| tx.send(entry));
+                    .try_for_each(|entry| tx.send(entry).map_err(Box::new));
             };
 
             let _ = thread::Builder::new()
