@@ -22,7 +22,17 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         return None;
     }
 
-    if !context.exec_cmd("sudo", &["-n", "true"]).is_some() {
+    if !context
+        .exec_cmd(
+            "sudo",
+            &[if config.use_legacy_check {
+                "-nv"
+            } else {
+                "-Nnv"
+            }],
+        )
+        .is_some()
+    {
         return None;
     }
 
@@ -57,38 +67,84 @@ mod tests {
 
     #[test]
     fn test_sudo_not_cached() {
-        let actual = ModuleRenderer::new("sudo")
-            .cmd("sudo -n true", None)
-            .config(toml::toml! {
-                [sudo]
-                disabled = false
-                allow_windows = true
-            })
-            .collect();
-        let expected = None;
+        fn test_new_sudo() {
+            let actual = ModuleRenderer::new("sudo")
+                .cmd("sudo -Nnv", None)
+                .config(toml::toml! {
+                    [sudo]
+                    disabled = false
+                    allow_windows = true
+                })
+                .collect();
+            let expected = None;
 
-        assert_eq!(expected, actual);
+            assert_eq!(expected, actual);
+        }
+
+        fn test_legacy_sudo() {
+            let actual = ModuleRenderer::new("sudo")
+                .cmd("sudo -nv", None)
+                .config(toml::toml! {
+                    [sudo]
+                    disabled = false
+                    allow_windows = true
+                    use_legacy_check = true
+                })
+                .collect();
+            let expected = None;
+
+            assert_eq!(expected, actual);
+        }
+
+        test_new_sudo();
+        test_legacy_sudo();
     }
 
     #[test]
     fn test_sudo_cached() {
-        let actual = ModuleRenderer::new("sudo")
-            .cmd(
-                "sudo -n true",
-                Some(CommandOutput {
-                    stdout: String::new(),
-                    stderr: String::new(),
-                }),
-            )
-            .config(toml::toml! {
-                [sudo]
-                disabled = false
-                allow_windows = true
-            })
-            .collect();
-        let expected = Some(format!("{}", Color::Blue.bold().paint("as 🧙 ")));
+        fn test_new_sudo() {
+            let actual = ModuleRenderer::new("sudo")
+                .cmd(
+                    "sudo -Nnv",
+                    Some(CommandOutput {
+                        stdout: String::new(),
+                        stderr: String::new(),
+                    }),
+                )
+                .config(toml::toml! {
+                    [sudo]
+                    disabled = false
+                    allow_windows = true
+                })
+                .collect();
+            let expected = Some(format!("{}", Color::Blue.bold().paint("as 🧙 ")));
 
-        assert_eq!(expected, actual);
+            assert_eq!(expected, actual);
+        }
+
+        fn test_legacy_sudo() {
+            let actual = ModuleRenderer::new("sudo")
+                .cmd(
+                    "sudo -nv",
+                    Some(CommandOutput {
+                        stdout: String::new(),
+                        stderr: String::new(),
+                    }),
+                )
+                .config(toml::toml! {
+                    [sudo]
+                    disabled = false
+                    allow_windows = true
+                    use_legacy_check = true
+                })
+                .collect();
+            let expected = Some(format!("{}", Color::Blue.bold().paint("as 🧙 ")));
+
+            assert_eq!(expected, actual);
+        }
+
+        test_new_sudo();
+        test_legacy_sudo();
     }
 
     #[test]
@@ -96,7 +152,7 @@ mod tests {
     fn test_allow_windows_disabled_blocks_windows() {
         let actual = ModuleRenderer::new("sudo")
             .cmd(
-                "sudo -n true",
+                "sudo -Nnv",
                 Some(CommandOutput {
                     stdout: String::new(),
                     stderr: String::new(),

@@ -315,6 +315,12 @@ Produces a prompt like the following:
 ▶                                   starship on  rprompt [!] is 📦 v0.57.0 via 🦀 v1.54.0 took 17s
 ```
 
+When using `zsh` (v5.0.5+), the shell adds a default trailing space to the right prompt. This can cause alignment issues specifically when using the Starship `$fill` module. To remove this gap, add the following to your `.zshrc`:
+
+```zsh
+ZLE_RPROMPT_INDENT=0
+```
+
 ## Continuation Prompt
 
 Some shells support a continuation prompt along with the normal prompt. This prompt is rendered instead of the normal prompt when the user has entered an incomplete statement (such as a single left parenthesis or quote).
@@ -420,12 +426,13 @@ The `claude_model` module displays the current Claude model being used in the se
 
 #### Variables
 
-| Variable | Example             | Description                           |
-| -------- | ------------------- | ------------------------------------- |
-| model    | `Claude 3.5 Sonnet` | The display name of the current model |
-| model_id | `claude-3-5-sonnet` | The model ID                          |
-| symbol   |                     | Mirrors the value of option `symbol`  |
-| style\*  |                     | Mirrors the value of option `style`   |
+| Variable | Example             | Description                             |
+| -------- | ------------------- | --------------------------------------- |
+| model    | `Claude 3.5 Sonnet` | The display name of the current model   |
+| model_id | `claude-3-5-sonnet` | The model ID                            |
+| effort   | `high`              | The reasoning effort level, if reported |
+| symbol   |                     | Mirrors the value of option `symbol`    |
+| style\*  |                     | Mirrors the value of option `style`     |
 
 \*: This variable can only be used as a part of a style string
 
