@@ -47,10 +47,6 @@ mod hg_branch;
 mod hg_state;
 mod hostname;
 mod java;
-mod jj_bookmark;
-mod jj_change;
-mod jj_metrics;
-mod jj_status;
 mod jobs;
 mod julia;
 mod kotlin;
@@ -172,10 +168,6 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
             "hg_state" => hg_state::module(context),
             "hostname" => hostname::module(context),
             "java" => java::module(context),
-            "jj_bookmark" => jj_bookmark::module(context),
-            "jj_change" => jj_change::module(context),
-            "jj_metrics" => jj_metrics::module(context),
-            "jj_status" => jj_status::module(context),
             "jobs" => jobs::module(context),
             "julia" => julia::module(context),
             "kotlin" => kotlin::module(context),

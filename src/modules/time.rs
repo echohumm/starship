@@ -1,9 +1,9 @@
-use std::sync::atomic::Ordering;
 use jiff::{
     Timestamp, Zoned,
     civil::Time,
     tz::{Offset, TimeZone},
 };
+use std::sync::atomic::Ordering;
 
 use super::{Context, Module, ModuleConfig};
 use crate::config::Either;
