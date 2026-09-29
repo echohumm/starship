@@ -30,8 +30,12 @@ use terminal_size::terminal_size;
 pub use crate::utils::env::Env;
 
 mod git_repo;
+mod jj_repo;
 
 pub use git_repo::{GitRemote, GitRepo};
+pub use jj_repo::JJRepo;
+#[cfg(test)]
+pub use jj_repo::mock_jj_cmd;
 
 /// Context contains data or common methods that may be used by multiple modules.
 /// The data contained within Context will be relevant to this particular rendering
@@ -59,6 +63,9 @@ pub struct Context<'a> {
 
     /// Private field to store Git information for modules who need it
     git_repo: OnceLock<Result<GitRepo, Box<gix::discover::Error>>>,
+
+    /// Private field to store JJ information for modules who need it
+    jj_repo: OnceLock<Option<JJRepo>>,
 
     /// The shell the user is assumed to be running
     pub shell: Shell,
@@ -184,6 +191,7 @@ impl<'a> Context<'a> {
             logical_dir,
             dir_contents: OnceLock::new(),
             git_repo: OnceLock::new(),
+            jj_repo: OnceLock::new(),
             shell,
             target,
             width,
@@ -403,6 +411,16 @@ impl<'a> Context<'a> {
             .map_err(std::convert::AsRef::as_ref)
     }
 
+    /// Will lazily discover Jujutsu repo root when a module requests it.
+    pub fn get_jj_repo(&self) -> Option<&JJRepo> {
+        self.jj_repo.get_or_init(|| JJRepo::discover(self)).as_ref()
+    }
+
+    #[cfg(test)]
+    pub fn set_jj_repo(&mut self, repo: JJRepo) {
+        self.jj_repo = OnceLock::from(Some(repo));
+    }
+
     pub fn dir_contents(&self) -> Result<&DirContents, &std::io::Error> {
         self.dir_contents
             .get_or_init(|| {
@@ -491,6 +509,13 @@ impl<'a> Context<'a> {
 
     pub fn get_config_path_os(&self) -> Option<OsString> {
         get_config_path_os(&self.env)
+    }
+
+    /// Checks if it is a SSH session
+    pub fn is_ssh_session(&self) -> bool {
+        ["SSH_CONNECTION", "SSH_TTY", "SSH_CLIENT"]
+            .iter()
+            .any(|s| self.get_env_os(s).is_some())
     }
 }
 
