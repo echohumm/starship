@@ -169,7 +169,7 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
                                 } => {
                                     if *copy {
                                         diff.added += count_lines(
-                                            location,
+                                            location.as_ref(),
                                             id.as_ref().into(),
                                             *entry_mode,
                                             tree_index_cache,
