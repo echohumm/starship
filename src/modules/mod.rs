@@ -26,7 +26,6 @@ mod jobs;
 mod kotlin;
 mod line_break;
 mod maven;
-mod memory_usage;
 mod meson;
 mod nix_shell;
 mod nodejs;
@@ -43,8 +42,6 @@ mod utils;
 mod vcs;
 mod vcsh;
 mod zig;
-
-mod typst;
 
 use crate::config::ModuleConfig;
 use crate::context::{Context, Detected, Shell};
@@ -82,7 +79,6 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
             "kotlin" => kotlin::module(context),
             "line_break" => line_break::module(context),
             "maven" => maven::module(context),
-            "memory_usage" => memory_usage::module(context),
             "meson" => meson::module(context),
             "nix_shell" => nix_shell::module(context),
             "nodejs" => nodejs::module(context),
@@ -94,7 +90,6 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
             "status" => status::module(context),
             "sudo" => sudo::module(context),
             "time" => time::module(context),
-            "typst" => typst::module(context),
             "username" => username::module(context),
             "vcs" => vcs::module(context),
             "vcsh" => vcsh::module(context),
@@ -129,117 +124,44 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
 
 pub fn description(module: &str) -> &'static str {
     match module {
-        "aws" => "The current AWS region and profile",
-        "azure" => "The current Azure subscription",
-        "battery" => "The current charge of the device's battery and its current charging status",
-        "buf" => "The currently installed version of the Buf CLI",
-        "bun" => "The currently installed version of the Bun",
         "c" => "Your C compiler type",
-        "character" => {
-            "A character (usually an arrow) beside where the text is entered in your terminal"
-        }
-        "claude_context" => "Context window usage for Claude Code session",
-        "claude_cost" => "Cost info for Claude Code session",
-        "claude_model" => "AI model name for Claude Code session",
+        "character" => "A character beside where text is entered",
         "cmake" => "The currently installed version of CMake",
         "cmd_duration" => "How long the last command took to execute",
-        "cobol" => "The currently installed version of COBOL/GNUCOBOL",
-        "conda" => "The current conda environment, if $CONDA_DEFAULT_ENV is set",
-        "container" => "The container indicator, if inside a container.",
-        "cpp" => "your cpp compiler type",
-        "crystal" => "The currently installed version of Crystal",
-        "daml" => "The Daml SDK version of your project",
-        "dart" => "The currently installed version of Dart",
-        "deno" => "The currently installed version of Deno",
+        "container" => "The container indicator, if inside a container",
+        "cpp" => "Your C++ compiler type",
         "directory" => "The current working directory",
         "direnv" => "The currently applied direnv file",
-        "docker_context" => "The current docker context",
-        "dotnet" => "The relevant version of the .NET Core SDK for the current directory",
-        "elixir" => "The currently installed versions of Elixir and OTP",
-        "elm" => "The currently installed version of Elm",
-        "erlang" => "Current OTP version",
-        "fennel" => "The currently installed version of Fennel",
-        "fill" => "Fills the remaining space on the line with a pad string",
-        "fortran" => "The currently used version of Fortran",
-        "fossil_branch" => "The active branch of the check-out in your current directory",
-        "fossil_metrics" => "The currently added/deleted lines in your check-out",
-        "gcloud" => "The current GCP client configuration",
-        "git_branch" => "The active branch of the current Git repo",
-        "git_commit" => "The active commit (and tag if any) of the current Git repo",
-        "git_metrics" => "The currently added/deleted lines in your Git repo",
-        "git_state" => "The current Git operation, and it's progress",
-        "git_status" => {
-            "Symbols representing the state of the current Git repo, filtered to your current directory"
-        }
-        "gleam" => "The currently installed version of Gleam",
-        "golang" => "The currently installed version of Golang",
+        "docker_context" => "The current Docker context",
+        "dotnet" => "The relevant .NET SDK version",
+        "fill" => "Fills the remaining terminal width with a pad string",
+        "git_branch" => "The active branch of the current Git repository",
+        "git_commit" => "The active commit and tag of the current Git repository",
+        "git_metrics" => "The currently added/deleted lines in the Git repository",
+        "git_state" => "The current Git operation and its progress",
+        "git_status" => "Symbols representing the state of the current Git repository",
+        "golang" => "The currently installed version of Go",
         "gradle" => "The currently installed version of Gradle",
-        "guix_shell" => "The guix-shell environment",
-        "haskell" => "The selected version of the Haskell toolchain",
-        "haxe" => "The currently installed version of Haxe",
-        "helm" => "The currently installed version of Helm",
-        "hg_branch" => "The active branch and topic of the repo in your current directory",
-        "hg_state" => "The current hg operation",
         "hostname" => "The system hostname",
         "java" => "The currently installed version of Java",
         "jobs" => "The current number of jobs running",
-        "julia" => "The currently installed version of Julia",
         "kotlin" => "The currently installed version of Kotlin",
-        "kubernetes" => "The current Kubernetes context name and, if set, the namespace",
         "line_break" => "Separates the prompt into two lines",
-        "localip" => "The currently assigned ipv4 address",
-        "lua" => "The currently installed version of Lua",
         "maven" => "The Maven Wrapper version of the current project",
-        "memory_usage" => "Current system memory and swap usage",
-        "meson" => {
-            "The current Meson environment, if $MESON_DEVENV and $MESON_PROJECT_NAME are set"
-        }
-        "mise" => "The current mise status",
-        "mojo" => "The currently installed version of Mojo",
-        "nats" => "The current NATS context",
-        "netns" => "The current network namespace",
-        "nim" => "The currently installed version of Nim",
+        "meson" => "The current Meson environment",
         "nix_shell" => "The nix-shell environment",
-        "nodejs" => "The currently installed version of NodeJS",
-        "ocaml" => "The currently installed version of OCaml",
-        "odin" => "The currently installed version of Odin",
-        "opa" => "The currently installed version of Open Platform Agent",
-        "openstack" => "The current OpenStack cloud and project",
-        "os" => "The current operating system",
+        "nodejs" => "The currently installed version of Node.js",
         "package" => "The package version of the current directory's project",
-        "perl" => "The currently installed version of Perl",
-        "php" => "The currently installed version of PHP",
-        "pijul_channel" => "The current channel of the repo in the current directory",
-        "pixi" => {
-            "The currently installed version of Pixi, and the active environment if $PIXI_ENVIRONMENT_NAME is set"
-        }
-        "pulumi" => "The current username, stack, and installed version of Pulumi",
-        "purescript" => "The currently installed version of PureScript",
         "python" => "The currently installed version of Python",
-        "quarto" => "The current installed version of quarto",
-        "raku" => "The currently installed version of Raku",
-        "red" => "The currently installed version of Red",
-        "rlang" => "The currently installed version of R",
-        "ruby" => "The currently installed version of Ruby",
         "rust" => "The currently installed version of Rust",
-        "scala" => "The currently installed version of Scala",
         "shell" => "The currently used shell indicator",
         "shlvl" => "The current value of SHLVL",
-        "singularity" => "The currently used Singularity image",
-        "solidity" => "The current installed version of Solidity",
-        "spack" => "The current spack environment, if $SPACK_ENV is set",
         "status" => "The status of the last command",
-        "sudo" => "The sudo credentials are currently cached",
-        "swift" => "The currently installed version of Swift",
-        "terraform" => "The currently selected terraform workspace and version",
+        "sudo" => "Whether sudo credentials are currently cached",
         "time" => "The current local time",
-        "typst" => "The current installed version of typst",
         "username" => "The active user's username",
-        "vagrant" => "The currently installed version of Vagrant",
-        "vcs" => "The currently active VCS repository (first one matching)",
+        "vcs" => "The current Git repository and its configured Git modules",
         "vcsh" => "The currently active VCSH repository",
-        "vlang" => "The currently installed version of V",
-        "xmake" => "The currently installed version of XMake",
         "zig" => "The currently installed version of Zig",
         _ => "<no description>",
     }

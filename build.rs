@@ -9,14 +9,6 @@ fn main() -> SdResult<()> {
         .hook(gen_presets_hook)
         .build()?;
 
-    #[cfg(windows)]
-    {
-        let mut res = winresource::WindowsResource::new();
-        res.set_manifest_file("starship.exe.manifest")
-            .set_icon("media/icon.ico");
-        res.compile()?;
-    }
-
     Ok(())
 }
 

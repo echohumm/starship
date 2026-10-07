@@ -28,7 +28,6 @@ pub mod jobs;
 pub mod kotlin;
 pub mod line_break;
 pub mod maven;
-pub mod memory_usage;
 pub mod meson;
 pub mod nix_shell;
 pub mod nodejs;
@@ -41,7 +40,6 @@ mod starship_root;
 pub mod status;
 pub mod sudo;
 pub mod time;
-pub mod typst;
 pub mod username;
 pub mod vcs;
 pub mod vcsh;
@@ -114,8 +112,6 @@ pub struct FullConfig<'a> {
     #[serde(borrow)]
     maven: maven::MavenConfig<'a>,
     #[serde(borrow)]
-    memory_usage: memory_usage::MemoryConfig<'a>,
-    #[serde(borrow)]
     meson: meson::MesonConfig<'a>,
     #[serde(borrow)]
     nix_shell: nix_shell::NixShellConfig<'a>,
@@ -137,8 +133,6 @@ pub struct FullConfig<'a> {
     sudo: sudo::SudoConfig<'a>,
     #[serde(borrow)]
     time: time::TimeConfig<'a>,
-    #[serde(borrow)]
-    typst: typst::TypstConfig<'a>,
     #[serde(borrow)]
     username: username::UsernameConfig<'a>,
     #[serde(borrow)]

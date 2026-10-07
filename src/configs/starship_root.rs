@@ -3,10 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 pub fn default_profiles() -> IndexMap<String, String> {
-    IndexMap::from_iter([(
-        "claude-code".to_string(),
-        "$claude_model$git_branch$claude_context$claude_cost".to_string(),
-    )])
+    IndexMap::new()
 }
 
 #[derive(Clone, Serialize, Deserialize, Debug)]
@@ -43,10 +40,7 @@ pub struct StarshipRootConfig {
 
 pub type Palette = HashMap<String, String>;
 
-// TODO: remove removed
-// List of default prompt order
-// NOTE: If this const value is changed then Default prompt order subheading inside
-// prompt heading of config docs needs to be updated according to changes made here.
+// List of default prompt order.
 pub const PROMPT_ORDER: &[&str] = &[
     "username",
     "hostname",
@@ -74,11 +68,9 @@ pub const PROMPT_ORDER: &[&str] = &[
     "nodejs",
     "python",
     "rust",
-    "typst",
     "zig",
     // ↑ Toolchain version modules ↑
     "meson",
-    "memory_usage",
     "direnv",
     "env_var",
     "custom",

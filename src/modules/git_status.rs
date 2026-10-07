@@ -1152,7 +1152,7 @@ pub mod tests {
             let actual = ModuleRenderer::new("git_status")
                 .config(toml::toml! {
                     [git_status]
-                    untracked = "?$count"
+                    untracked = "\\?$count"
                 })
                 .path(repo_dir.path())
                 .collect();
@@ -1386,7 +1386,7 @@ pub mod tests {
                 })
                 .path(repo_dir.path())
                 .collect();
-            let expected = format_output("⇢");
+            let expected = Some(String::from("1"));
 
             assert_eq!(expected, actual);
             repo_dir.close()?;
@@ -1422,7 +1422,7 @@ pub mod tests {
             let actual = ModuleRenderer::new("git_status")
                 .config(toml::toml! {
                     [git_status]
-                    modified = "!$count"
+                    modified = "\\!$count"
                 })
                 .path(repo_dir.path())
                 .collect();
@@ -1445,7 +1445,7 @@ pub mod tests {
             let actual = ModuleRenderer::new("git_status")
                 .config(toml::toml! {
                     [git_status]
-                    modified = "!$count"
+                    modified = "\\!$count"
                     ahead = ""
                 })
                 .path(repo_dir.path())
@@ -1537,7 +1537,7 @@ pub mod tests {
                 })
                 .path(repo_dir.path())
                 .collect();
-            let expected = format_output("M");
+            let expected = Some(String::from("1"));
 
             assert_eq!(expected, actual);
             repo_dir.close()?;

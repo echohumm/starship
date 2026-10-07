@@ -10,14 +10,14 @@ use clap_complete::generate;
 use rand::RngExt;
 use starship::context::{Context, Properties, Target};
 use starship::module::ALL_MODULES;
-use starship::{bug_report, configure, init, logger, num_rayon_threads, print, shadow};
+use starship::{configure, init, logger, num_rayon_threads, print, shadow};
 
 #[derive(Parser, Debug)]
 #[clap(
     author=crate_authors!(),
     version=shadow::PKG_VERSION,
     long_version=shadow::CLAP_LONG_VERSION,
-    about="The cross-shell prompt for astronauts. ☄🌌️",
+    about="The fish shell prompt for astronauts. ☄🌌️",
     subcommand_required=true,
     arg_required_else_help=true,
 )]
@@ -28,13 +28,7 @@ struct Cli {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 enum CompletionShell {
-    Bash,
-    Elvish,
     Fish,
-    Nushell,
-    #[clap(name = "powershell", alias = "pwsh", alias = "power-shell")]
-    PowerShell,
-    Zsh,
 }
 
 fn generate_shell(shell: impl clap_complete::Generator) {
@@ -48,20 +42,13 @@ fn generate_shell(shell: impl clap_complete::Generator) {
 
 fn generate_completions(shell: CompletionShell) {
     match shell {
-        CompletionShell::Bash => generate_shell(clap_complete::Shell::Bash),
-        CompletionShell::Elvish => generate_shell(clap_complete::Shell::Elvish),
         CompletionShell::Fish => generate_shell(clap_complete::Shell::Fish),
-        CompletionShell::PowerShell => generate_shell(clap_complete::Shell::PowerShell),
-        CompletionShell::Zsh => generate_shell(clap_complete::Shell::Zsh),
-        CompletionShell::Nushell => generate_shell(clap_complete_nushell::Nushell),
     }
 }
 
 #[derive(Subcommand, Debug)]
 enum Commands {
-    /// Create a pre-populated GitHub issue with information about your configuration
-    BugReport,
-    /// Generate starship shell completions for your shell to stdout
+    /// Generate fish shell completions to stdout
     Completions {
         #[clap(value_enum)]
         shell: CompletionShell,
@@ -76,7 +63,7 @@ enum Commands {
     },
     /// Explains the currently showing modules
     Explain(Properties),
-    ///  Prints the shell function used to execute starship
+    ///  Prints the fish function used to execute starship
     Init {
         shell: String,
         #[clap(long)]
@@ -151,9 +138,6 @@ enum Commands {
 }
 
 fn main() {
-    // Configure the current terminal on windows to support ANSI escape sequences.
-    #[cfg(windows)]
-    let _ = nu_ansi_term::enable_ansi_support();
     logger::init();
     init_global_threadpool();
 
@@ -262,7 +246,6 @@ fn main() {
         Commands::Toggle { name, value } => {
             configure::toggle_configuration(&Context::default(), &name, &value);
         }
-        Commands::BugReport => bug_report::create(),
         Commands::Time => {
             match SystemTime::now()
                 .duration_since(SystemTime::UNIX_EPOCH)

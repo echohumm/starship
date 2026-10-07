@@ -2,7 +2,6 @@
 
 format = """
 [](#9A348E)\
-$os\
 $username\
 [](bg:#DA627D fg:#9A348E)\
 $directory\
@@ -11,19 +10,12 @@ $git_branch\
 $git_status\
 [](fg:#FCA17D bg:#86BBD8)\
 $c\
-$elixir\
-$elm\
 $golang\
 $gradle\
-$haskell\
 $java\
-$julia\
 $maven\
 $nodejs\
-$bun\
-$nim\
 $rust\
-$scala\
 [](fg:#86BBD8 bg:#06969A)\
 $docker_context\
 [](fg:#06969A bg:#33658A)\
@@ -45,10 +37,6 @@ disabled = false
 
 # An alternative to the username module which displays a symbol that
 # represents the current operating system
-[os]
-style = "bg:#9A348E"
-disabled = true # Disabled by default
-
 [directory]
 style = "bg:#DA627D"
 format = "[ $path ]($style)"
@@ -83,16 +71,6 @@ symbol = " "
 style = "bg:#06969A"
 format = '[ $symbol $context ]($style)'
 
-[elixir]
-symbol = " "
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
-[elm]
-symbol = " "
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
 [git_branch]
 symbol = ""
 style = "bg:#FCA17D"
@@ -111,27 +89,8 @@ format = '[ $symbol ($version) ]($style)'
 style = "bg:#86BBD8"
 format = '[ $symbol ($version) ]($style)'
 
-[haskell]
-symbol = " "
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
 [java]
 symbol = " "
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
-[jj_bookmark]
-symbol = ""
-style = "bg:#FCA17D"
-format = '[ $symbol $bookmark(@$remote)$diverged( \\(+$overflow_count others\\)) ]($style)'
-
-[jj_status]
-style = "bg:#FCA17D"
-format = '[$all ]($style)'
-
-[julia]
-symbol = " "
 style = "bg:#86BBD8"
 format = '[ $symbol ($version) ]($style)'
 
@@ -144,23 +103,8 @@ symbol = ""
 style = "bg:#86BBD8"
 format = '[ $symbol ($version) ]($style)'
 
-[bun]
-symbol = ""
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
-[nim]
-symbol = "󰆥 "
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
 [rust]
 symbol = ""
-style = "bg:#86BBD8"
-format = '[ $symbol ($version) ]($style)'
-
-[scala]
-symbol = " "
 style = "bg:#86BBD8"
 format = '[ $symbol ($version) ]($style)'
 

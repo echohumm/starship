@@ -8,7 +8,6 @@ use std::thread::available_parallelism;
 shadow!(shadow);
 
 // Lib is present to allow for benchmarking
-pub mod bug_report;
 pub mod config;
 pub mod configs;
 pub mod configure;

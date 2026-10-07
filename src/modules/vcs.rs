@@ -1,5 +1,3 @@
-use std::borrow::Cow;
-use std::path::Path;
 
 use super::{Context, Module, ModuleConfig};
 
@@ -15,18 +13,15 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
         return None;
     }
 
-    let vcs = config
+    if !config
         .order
         .into_iter()
-        .filter_map(|vcs| Vcs::try_from(vcs).ok())
-        .find(|vcs| discover_repo_root(context, *vcs).is_some())?;
+        .any(|vcs| vcs == "git" && context.get_git_repo().is_ok())
+    {
+        return None;
+    }
 
-    let modules = match vcs {
-        Vcs::Fossil => config.fossil_modules,
-        Vcs::Git => config.git_modules,
-        Vcs::Hg => config.hg_modules,
-        Vcs::Pijul => config.pijul_modules,
-    };
+    let modules = config.git_modules;
 
     if modules.is_empty() {
         return None;
@@ -54,45 +49,6 @@ pub fn module<'a>(context: &'a Context) -> Option<Module<'a>> {
     Some(module)
 }
 
-pub fn discover_repo_root<'a>(context: &'a Context, vcs: Vcs) -> Option<Cow<'a, Path>> {
-    let scan = context.begin_ancestor_scan();
-
-    let scan = match vcs {
-        Vcs::Fossil => scan.set_files(if cfg!(windows) {
-            &["_FOSSIL_"]
-        } else {
-            &[".fslckout"]
-        }),
-        Vcs::Hg => scan.set_folders(&[".hg"]),
-        Vcs::Pijul => scan.set_folders(&[".pijul"]),
-        Vcs::Git => return context.get_git_repo().ok().map(|r| r.repo.path().into()),
-    };
-
-    scan.scan().map(Into::into)
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum Vcs {
-    Fossil,
-    Git,
-    // NOTE: uses `hg` to correspond to existing `hg_branch` module
-    Hg,
-    Pijul,
-}
-
-impl<'a> TryFrom<&'a str> for Vcs {
-    type Error = &'a str;
-
-    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        match value {
-            "fossil" => Ok(Self::Fossil),
-            "git" => Ok(Self::Git),
-            "hg" | "mercurial" => Ok(Self::Hg),
-            "pijul" => Ok(Self::Pijul),
-            _ => Err(value),
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -100,7 +56,7 @@ mod tests {
 
     use nu_ansi_term::Color;
 
-    use crate::test::{COMMON_GIT_PROVIDERS, FixtureProvider, ModuleRenderer, fixture_repo};
+    use crate::test::{COMMON_GIT_PROVIDERS, ModuleRenderer, fixture_repo};
 
     #[test]
     fn empty_order_disables() {
@@ -115,129 +71,70 @@ mod tests {
 
     #[test]
     fn empty_modules_disables() -> io::Result<()> {
-        let repo_dir = fixture_repo(FixtureProvider::Fossil)?;
-
+        let repo_dir = fixture_repo(COMMON_GIT_PROVIDERS[0])?;
         let actual = ModuleRenderer::new("vcs")
             .config(toml::toml! {
                 [vcs]
-                order = ["fossil"]
-                fossil_modules = ""
+                order = ["git"]
+                git_modules = ""
             })
             .path(repo_dir.path())
             .collect();
         assert_eq!(actual, None);
-
         repo_dir.close()
     }
 
     #[test]
     fn recursive_vcs_include_fails() -> io::Result<()> {
-        let repo_dir = fixture_repo(FixtureProvider::Fossil)?;
-
+        let repo_dir = fixture_repo(COMMON_GIT_PROVIDERS[0])?;
         let actual = ModuleRenderer::new("vcs")
             .config(toml::toml! {
                 [vcs]
-                order = ["fossil"]
-                fossil_modules = "$vcs"
+                order = ["git"]
+                git_modules = "$vcs"
             })
             .path(repo_dir.path())
             .collect();
         assert_eq!(actual, None);
-
         repo_dir.close()
-    }
-
-    #[test]
-    fn detect_fossil() -> io::Result<()> {
-        with_marker(
-            "fossil",
-            FixtureProvider::Fossil,
-            Some(format!("{}", Color::Green.bold().paint("test "))),
-        )
     }
 
     #[test]
     fn detect_git() -> io::Result<()> {
         for &mode in COMMON_GIT_PROVIDERS {
-            with_marker(
-                "git",
-                mode,
-                Some(format!("{}", Color::Green.bold().paint("test "))),
-            )?;
+            let repo_dir = fixture_repo(mode)?;
+            let actual = ModuleRenderer::new("vcs")
+                .config(toml::toml! {
+                    [vcs]
+                    order = ["git"]
+                    git_modules = "${custom.test}"
+                    [custom.test]
+                    command = "echo test"
+                    when = true
+                })
+                .path(repo_dir.path())
+                .collect();
+            let expected = Some(format!(
+                "{}",
+                Color::Green.bold().paint("test ")
+            ));
+            assert_eq!(actual, expected);
+            repo_dir.close()?;
         }
         Ok(())
     }
 
     #[test]
-    fn detect_hg() -> io::Result<()> {
-        with_marker(
-            "hg",
-            FixtureProvider::Hg,
-            Some(format!("{}", Color::Green.bold().paint("test "))),
-        )
-    }
-
-    #[test]
-    fn detect_hg_alias_mercurial() -> io::Result<()> {
-        with_marker(
-            "mercurial",
-            FixtureProvider::Hg,
-            Some(format!("{}", Color::Green.bold().paint("test "))),
-        )
-    }
-
-    #[test]
-    fn detect_pijul() -> io::Result<()> {
-        with_marker(
-            "pijul",
-            FixtureProvider::Pijul,
-            Some(format!("{}", Color::Green.bold().paint("test "))),
-        )
-    }
-
-    #[test]
     fn invalid_vcs_is_none() -> io::Result<()> {
-        with_marker("does_not_exists", FixtureProvider::Fossil, None)
-    }
-
-    #[track_caller]
-    fn with_marker(
-        vcs_name: &'static str,
-        fixture: FixtureProvider,
-        expected: Option<String>,
-    ) -> io::Result<()> {
-        let repo_dir = match fixture {
-            // Custom handling of Mercurial because we only care to detect the repo root, not run `hg` commands
-            FixtureProvider::Hg => {
-                let repo_dir = tempfile::tempdir()?;
-                std::fs::create_dir(repo_dir.path().join(".hg"))?;
-                repo_dir
-            }
-            _ => fixture_repo(fixture)?,
-        };
-
-        let config = toml::toml! {
-            [vcs]
-            order = [vcs_name]
-            // Use `custom.test` for VCSes
-            fossil_modules = "${custom.test}"
-            git_modules = "${custom.test}"
-            hg_modules = "${custom.test}"
-            pijul_modules = "${custom.test}"
-
-            // Inserting the `custom.test` module to have something printed that we control
-            [custom.test]
-            command = "echo test"
-            when = true
-        };
-
+        let repo_dir = fixture_repo(COMMON_GIT_PROVIDERS[0])?;
         let actual = ModuleRenderer::new("vcs")
-            .config(config)
+            .config(toml::toml! {
+                [vcs]
+                order = ["does_not_exist"]
+            })
             .path(repo_dir.path())
             .collect();
-
-        assert_eq!(actual, expected);
-
+        assert_eq!(actual, None);
         repo_dir.close()
     }
 }

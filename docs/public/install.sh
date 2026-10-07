@@ -1,1 +1,1 @@
-../../install/install.sh
+starship/../../install/install.sh

@@ -87,7 +87,6 @@ pub struct Context<'a> {
 
     pub repo_size: u64,
 
-    // i am NOT supporting claude code
     /// Avoid issues with unused lifetimes when features are disabled
     _marker: PhantomData<&'a ()>,
 }

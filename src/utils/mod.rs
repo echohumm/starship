@@ -13,9 +13,6 @@ use std::time::{Duration, Instant};
 use crate::context::Context;
 use crate::context::Shell;
 
-/// Default timeout for command execution in milliseconds
-pub const DEFAULT_COMMAND_TIMEOUT_MS: u64 = 500;
-
 /// Create a `PathBuf` from an absolute path, where the root directory will be mocked in test
 #[cfg(not(test))]
 #[inline]
@@ -212,20 +209,6 @@ pub fn display_command<T: AsRef<OsStr> + Debug, U: AsRef<OsStr> + Debug>(
         .join(" ")
 }
 
-/// Execute a command and return the output on stdout and stderr if successful
-pub fn exec_cmd<T: AsRef<OsStr> + Debug, U: AsRef<OsStr> + Debug>(
-    cmd: T,
-    args: &[U],
-    time_limit: Duration,
-) -> Option<CommandOutput> {
-    log::trace!("Executing command {cmd:?} with args {args:?}");
-    #[cfg(test)]
-    if let Some(o) = mock_cmd(&cmd, args) {
-        return o;
-    }
-    internal_exec_cmd(cmd, args, time_limit)
-}
-
 #[cfg(test)]
 pub fn mock_cmd<T: AsRef<OsStr> + Debug, U: AsRef<OsStr> + Debug>(
     cmd: T,
@@ -233,14 +216,6 @@ pub fn mock_cmd<T: AsRef<OsStr> + Debug, U: AsRef<OsStr> + Debug>(
 ) -> Option<Option<CommandOutput>> {
     let command = display_command(&cmd, args);
     let out = match command.as_str() {
-        "bun --version" => Some(CommandOutput {
-            stdout: String::from("0.1.4\n"),
-            stderr: String::default(),
-        }),
-        "buf --version" => Some(CommandOutput {
-            stdout: String::from("1.0.0"),
-            stderr: String::default(),
-        }),
         "cc --version" => Some(CommandOutput {
             stdout: String::from(
                 "\
@@ -301,114 +276,18 @@ InstalledDir: /usr/bin",
             ),
             stderr: String::default(),
         }),
-        "cobc -version" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-cobc (GnuCOBOL) 3.1.2.0
-Copyright (C) 2020 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-Written by Keisuke Nishida, Roger While, Ron Norman, Simon Sobisch, Edward Hart
-Built     Dec 24 2020 19:08:58
-Packaged  Dec 23 2020 12:04:58 UTC
-C version \"10.2.0\"",
-            ),
-            stderr: String::default(),
-        }),
-        "crystal --version" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-Crystal 0.35.1 (2020-06-19)
-
-LLVM: 10.0.0
-Default target: x86_64-apple-macosx\n",
-            ),
-            stderr: String::default(),
-        }),
-        "dart --version" => Some(CommandOutput {
-            stdout: String::default(),
-            stderr: String::from(
-                "Dart VM version: 2.8.4 (stable) (Wed Jun 3 12:26:04 2020 +0200) on \"macos_x64\"",
-            ),
-        }),
-        "deno -V" => Some(CommandOutput {
-            stdout: String::from("deno 1.8.3\n"),
-            stderr: String::default(),
-        }),
         "dummy_command" => Some(CommandOutput {
             stdout: String::from("stdout ok!\n"),
             stderr: String::from("stderr ok!\n"),
         }),
-        "elixir --version" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-Erlang/OTP 22 [erts-10.6.4] [source] [64-bit] [smp:8:8] [ds:8:8:10] [async-threads:1] [hipe]
-
-Elixir 1.10 (compiled with Erlang/OTP 22)\n",
-            ),
-            stderr: String::default(),
-        }),
-        "elm --version" => Some(CommandOutput {
-            stdout: String::from("0.19.1\n"),
-            stderr: String::default(),
-        }),
-        "fennel --version" => Some(CommandOutput {
-            stdout: String::from("Fennel 1.2.1 on PUC Lua 5.4\n"),
-            stderr: String::default(),
-        }),
-        "fossil branch current" => Some(CommandOutput {
-            stdout: String::from("topic-branch"),
-            stderr: String::default(),
-        }),
-        "fossil branch new topic-branch trunk" | "fossil update topic-branch" => {
-            Some(CommandOutput {
-                stdout: String::default(),
-                stderr: String::default(),
-            })
-        }
-        "fossil diff -i --numstat" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-         3          2 README.md
-         3          2 TOTAL over 1 changed files",
-            ),
-            stderr: String::default(),
-        }),
-        "gleam --version" => Some(CommandOutput {
-            stdout: String::from("gleam 1.0.0\n"),
-            stderr: String::default(),
-        }),
         "go version" => Some(CommandOutput {
             stdout: String::from("go version go1.12.1 linux/amd64\n"),
-            stderr: String::default(),
-        }),
-        "ghc --numeric-version" => Some(CommandOutput {
-            stdout: String::from("9.2.1\n"),
-            stderr: String::default(),
-        }),
-        "helm version --short" => Some(CommandOutput {
-            stdout: String::from("v3.1.1+gafe7058\n"),
             stderr: String::default(),
         }),
         s if s.ends_with("java -Xinternalversion") => Some(CommandOutput {
             stdout: String::from(
                 "OpenJDK 64-Bit Server VM (13.0.2+8) for bsd-amd64 JRE (13.0.2+8), built on Feb  6 2020 02:07:52 by \"brew\" with clang 4.2.1 Compatible Apple LLVM 11.0.0 (clang-1100.0.33.17)",
             ),
-            stderr: String::default(),
-        }),
-        "scala-cli version --scala" => Some(CommandOutput {
-            stdout: String::from("3.4.1"),
-            stderr: String::default(),
-        }),
-        "scalac -version" => Some(CommandOutput {
-            stdout: String::from(
-                "Scala compiler version 2.13.5 -- Copyright 2002-2020, LAMP/EPFL and Lightbend, Inc.",
-            ),
-            stderr: String::default(),
-        }),
-        "julia --version" => Some(CommandOutput {
-            stdout: String::from("julia version 1.4.0\n"),
             stderr: String::default(),
         }),
         "kotlin -version" => Some(CommandOutput {
@@ -419,105 +298,8 @@ Elixir 1.10 (compiled with Erlang/OTP 22)\n",
             stdout: String::from("info: kotlinc-jvm 1.4.21 (JRE 14.0.1+7)\n"),
             stderr: String::default(),
         }),
-        "lua -v" => Some(CommandOutput {
-            stdout: String::from("Lua 5.4.0  Copyright (C) 1994-2020 Lua.org, PUC-Rio\n"),
-            stderr: String::default(),
-        }),
-        "luajit -v" => Some(CommandOutput {
-            stdout: String::from(
-                "LuaJIT 2.0.5 -- Copyright (C) 2005-2017 Mike Pall. http://luajit.org/\n",
-            ),
-            stderr: String::default(),
-        }),
-        "mojo --version" => Some(CommandOutput {
-            stdout: String::from("mojo 24.4.0 (2cb57382)\n"),
-            stderr: String::default(),
-        }),
-        "nats context info --json" => Some(CommandOutput {
-            stdout: String::from("{\"name\":\"localhost\",\"url\":\"nats://localhost:4222\"}"),
-            stderr: String::default(),
-        }),
-        "nim --version" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-Nim Compiler Version 1.2.0 [Linux: amd64]
-Compiled at 2020-04-03
-Copyright (c) 2006-2020 by Andreas Rumpf
-git hash: 7e83adff84be5d0c401a213eccb61e321a3fb1ff
-active boot switches: -d:release\n",
-            ),
-            stderr: String::default(),
-        }),
         "node --version" => Some(CommandOutput {
             stdout: String::from("v12.0.0\n"),
-            stderr: String::default(),
-        }),
-        "ocaml -vnum" => Some(CommandOutput {
-            stdout: String::from("4.10.0\n"),
-            stderr: String::default(),
-        }),
-        "odin version" => Some(CommandOutput {
-            stdout: String::from("odin version dev-2024-03:fc587c507\n"),
-            stderr: String::default(),
-        }),
-        "opa version" => Some(CommandOutput {
-            stdout: String::from(
-                "Version: 0.44.0
-Build Commit: e8d488f
-Build Timestamp: 2022-09-07T23:50:25Z
-Build Hostname: 119428673f4c
-Go Version: go1.19.1
-Platform: linux/amd64
-WebAssembly: unavailable
-",
-            ),
-            stderr: String::default(),
-        }),
-        "opam switch show --safe" => Some(CommandOutput {
-            stdout: String::from("default\n"),
-            stderr: String::default(),
-        }),
-        "typst --version" => Some(CommandOutput {
-            stdout: String::from("typst 0.10 (360cc9b9)"),
-            stderr: String::default(),
-        }),
-
-        "esy ocaml -vnum" => Some(CommandOutput {
-            stdout: String::from("4.08.1\n"),
-            stderr: String::default(),
-        }),
-        "perl -e printf q#%vd#,$^V;" => Some(CommandOutput {
-            stdout: String::from("5.26.1"),
-            stderr: String::default(),
-        }),
-        "php -nr echo PHP_MAJOR_VERSION.\".\".PHP_MINOR_VERSION.\".\".PHP_RELEASE_VERSION;" => {
-            Some(CommandOutput {
-                stdout: String::from("7.3.8"),
-                stderr: String::default(),
-            })
-        }
-        "pijul channel" => Some(CommandOutput {
-            stdout: String::from("  main\n* tributary-48198"),
-            stderr: String::default(),
-        }),
-        "pijul channel new tributary-48198" => Some(CommandOutput {
-            stdout: String::default(),
-            stderr: String::default(),
-        }),
-        "pijul channel switch tributary-48198" => Some(CommandOutput {
-            stdout: String::from("Outputting repository ↖"),
-            stderr: String::default(),
-        }),
-        "pixi --version" => Some(CommandOutput {
-            stdout: String::from("pixi 0.33.0"),
-            stderr: String::default(),
-        }),
-        "pulumi version" => Some(CommandOutput {
-            stdout: String::from("1.2.3-ver.1631311768+e696fb6c"),
-            stderr: String::default(),
-        }),
-        "purs --version" => Some(CommandOutput {
-            stdout: String::from("0.13.5\n"),
             stderr: String::default(),
         }),
         "pyenv version-name" => Some(CommandOutput {
@@ -531,83 +313,6 @@ WebAssembly: unavailable
         }),
         "python3 --version" => Some(CommandOutput {
             stdout: String::from("Python 3.8.0\n"),
-            stderr: String::default(),
-        }),
-        "quarto --version" => Some(CommandOutput {
-            stdout: String::from("1.4.549\n"),
-            stderr: String::default(),
-        }),
-        "R --version" => Some(CommandOutput {
-            stdout: String::default(),
-            stderr: String::from(
-                r#"R version 4.1.0 (2021-05-18) -- "Camp Pontanezen"
-Copyright (C) 2021 The R Foundation for Statistical Computing
-Platform: x86_64-w64-mingw32/x64 (64-bit)\n
-
-R is free software and comes with ABSOLUTELY NO WARRANTY.
-You are welcome to redistribute it under the terms of the
-GNU General Public License versions 2 or 3.
-For more information about these matters see
-https://www.gnu.org/licenses/."#,
-            ),
-        }),
-        "raku --version" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-Welcome to Rakudo™ v2021.12.
-Implementing the Raku® Programming Language v6.d.
-Built on MoarVM version 2021.12.\n",
-            ),
-            stderr: String::default(),
-        }),
-        "red --version" => Some(CommandOutput {
-            stdout: String::from("0.6.4\n"),
-            stderr: String::default(),
-        }),
-        "ruby -v" => Some(CommandOutput {
-            stdout: String::from("ruby 2.5.1p57 (2018-03-29 revision 63029) [x86_64-linux-gnu]\n"),
-            stderr: String::default(),
-        }),
-        "solc --version" => Some(CommandOutput {
-            stdout: String::from(
-                "solc, the solidity compiler commandline interface
-Version: 0.8.16+commit.07a7930e.Linux.g++",
-            ),
-            stderr: String::default(),
-        }),
-        "solcjs --version" => Some(CommandOutput {
-            stdout: String::from("0.8.15+commit.e14f2714.Emscripten.clang"),
-            stderr: String::default(),
-        }),
-        "swift --version" => Some(CommandOutput {
-            stdout: String::from(
-                "\
-Apple Swift version 5.2.2 (swiftlang-1103.0.32.6 clang-1103.0.32.51)
-Target: x86_64-apple-darwin19.4.0\n",
-            ),
-            stderr: String::default(),
-        }),
-        "vagrant --version" => Some(CommandOutput {
-            stdout: String::from("Vagrant 2.2.10\n"),
-            stderr: String::default(),
-        }),
-        "v version" => Some(CommandOutput {
-            stdout: String::from("V 0.2 30c0659"),
-            stderr: String::default(),
-        }),
-        "xmake --version" => Some(CommandOutput {
-            stdout: String::from(
-                r"xmake v2.9.5+HEAD.0db4fe6, A cross-platform build utility based on Lua
-Copyright (C) 2015-present Ruki Wang, tboox.org, xmake.io
-                         _
-    __  ___ __  __  __ _| | ______
-    \ \/ / |  \/  |/ _  | |/ / __ \
-     >  <  | \__/ | /_| |   <  ___/
-    /_/\_\_|_|  |_|\__ \|_|\_\____|
-                         by ruki, xmake.io
-    👉  Manual: https://xmake.io/#/getting_started
-    🙏  Donate: https://xmake.io/#/sponsor",
-            ),
             stderr: String::default(),
         }),
         "zig version" => Some(CommandOutput {
@@ -629,14 +334,6 @@ CMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
         }),
         "dotnet --list-sdks" => Some(CommandOutput {
             stdout: String::from("3.1.103 [/usr/share/dotnet/sdk]"),
-            stderr: String::default(),
-        }),
-        "terraform version" => Some(CommandOutput {
-            stdout: String::from("Terraform v0.12.14\n"),
-            stderr: String::default(),
-        }),
-        s if s.starts_with("erl -noshell -eval") => Some(CommandOutput {
-            stdout: String::from("22.1.3\n"),
             stderr: String::default(),
         }),
         _ => return None,
@@ -686,16 +383,6 @@ pub fn wrap_seq_for_shell(
         })
         .collect();
     final_string
-}
-
-fn internal_exec_cmd<T: AsRef<OsStr> + Debug, U: AsRef<OsStr> + Debug>(
-    cmd: T,
-    args: &[U],
-    time_limit: Duration,
-) -> Option<CommandOutput> {
-    let mut cmd = create_command(cmd).ok()?;
-    cmd.args(args);
-    exec_timeout(&mut cmd, time_limit)
 }
 
 pub fn exec_timeout(cmd: &mut Command, time_limit: Duration) -> Option<CommandOutput> {
@@ -883,114 +570,6 @@ mod tests {
     #[test]
     fn render_time_test_1d() {
         assert_eq!(render_time(86_400_000_u128, false), "1:00:00:00");
-    }
-
-    #[test]
-    fn exec_mocked_command() {
-        let result = exec_cmd(
-            "dummy_command",
-            &[] as &[&OsStr],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = Some(CommandOutput {
-            stdout: String::from("stdout ok!\n"),
-            stderr: String::from("stderr ok!\n"),
-        });
-
-        assert_eq!(result, expected);
-    }
-
-    // While the exec_cmd should work on Windows some of these tests assume a Unix-like
-    // environment.
-
-    #[test]
-    #[cfg(not(windows))]
-    fn exec_no_output() {
-        let result = internal_exec_cmd(
-            "true",
-            &[] as &[&OsStr],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = Some(CommandOutput {
-            stdout: String::new(),
-            stderr: String::new(),
-        });
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    #[cfg(not(windows))]
-    fn exec_with_output_stdout() {
-        let result = internal_exec_cmd(
-            "/bin/sh",
-            &["-c", "echo hello"],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = Some(CommandOutput {
-            stdout: String::from("hello\n"),
-            stderr: String::new(),
-        });
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    #[cfg(not(windows))]
-    fn exec_with_output_stderr() {
-        let result = internal_exec_cmd(
-            "/bin/sh",
-            &["-c", "echo hello >&2"],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = Some(CommandOutput {
-            stdout: String::new(),
-            stderr: String::from("hello\n"),
-        });
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    #[cfg(not(windows))]
-    fn exec_with_output_both() {
-        let result = internal_exec_cmd(
-            "/bin/sh",
-            &["-c", "echo hello; echo world >&2"],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = Some(CommandOutput {
-            stdout: String::from("hello\n"),
-            stderr: String::from("world\n"),
-        });
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    #[cfg(not(windows))]
-    fn exec_with_non_zero_exit_code() {
-        let result = internal_exec_cmd(
-            "false",
-            &[] as &[&OsStr],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = None;
-
-        assert_eq!(result, expected);
-    }
-
-    #[test]
-    #[cfg(not(windows))]
-    fn exec_slow_command() {
-        let result = internal_exec_cmd(
-            "sleep",
-            &["500"],
-            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
-        );
-        let expected = None;
-
-        assert_eq!(result, expected);
     }
 
     #[test]

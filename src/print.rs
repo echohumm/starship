@@ -885,9 +885,9 @@ mod test {
         let mut context = default_context().set_config(toml::toml! {
             add_newline = false
             [profiles]
-            claude-code = "user profile"
+            test-profile = "user profile"
         });
-        context.target = Target::Profile("claude-code".to_string());
+        context.target = Target::Profile("test-profile".to_string());
 
         let expected = "user profile";
         let actual = get_prompt(&context);

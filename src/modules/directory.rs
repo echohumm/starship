@@ -1,7 +1,4 @@
-#[cfg(not(target_os = "windows"))]
 use super::utils::directory_nix as directory_utils;
-#[cfg(target_os = "windows")]
-use super::utils::directory_win as directory_utils;
 use super::utils::path::PathExt as SPathExt;
 use indexmap::IndexMap;
 use path_slash::{PathBufExt, PathExt};
