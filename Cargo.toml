@@ -23,14 +23,13 @@ license = "ISC"
 readme = "README.md"
 repository = "https://github.com/echohumm/starship"
 # Note: MSRV is only intended as a hint, and only the latest version is officially supported in starship.
-rust-version = "1.95"
+rust-version = "1.99"
 description = """
 The minimal, blazing-fast, and infinitely customizable prompt for any shell! ☄🌌️
 """
 
 [features]
-default = ["battery", "notify"]
-battery = ["starship-battery"]
+default = ["notify"]
 config-schema = ["schemars"]
 notify = ["notify-rust"]
 
@@ -75,12 +74,8 @@ rust-ini = "0.21.3"
 semver = "1.0.28"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = "1.0.151"
-sha1 = "0.11.0"
 shadow-rs = { version = "2.0.0", default-features = false, features = ["build"] }
 shell-words = "1.1.1"
-# battery is optional (on by default) because the crate doesn't currently build for Termux
-# see: https://github.com/svartalf/rust-battery/issues/33
-starship-battery = { version = "0.11.1", optional = true }
 strsim = "0.11.1"
 systemstat = "=0.2.7"
 tempfile = "3.27.0"

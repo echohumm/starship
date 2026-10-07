@@ -36,10 +36,6 @@ pub struct VcsConfig<'a> {
     ///
     /// They are configured separately at the top level.
     pub hg_modules: &'a str, // NOTE: uses `hg` to correspond to existing `hg_branch` module
-    /// Modules to use when Jujutsu is matched.
-    ///
-    /// They are configured separately at the top level.
-    pub jj_modules: &'a str,
     /// Modules to use when Pijul is matched.
     ///
     /// They are configured separately at the top level.
@@ -54,7 +50,6 @@ impl Default for VcsConfig<'_> {
             fossil_modules: "$fossil_branch$fossil_metrics",
             git_modules: "$git_branch$git_commit$git_state$git_metrics$git_status",
             hg_modules: "$hg_branch$hg_state",
-            jj_modules: "$jj_bookmark$jj_change$jj_metrics$jj_status",
             pijul_modules: "$pijul_channel",
         }
     }

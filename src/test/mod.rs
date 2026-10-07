@@ -1,4 +1,4 @@
-use crate::context::{Context, Env, JJRepo, Properties, Shell, Target};
+use crate::context::{Context, Env, Properties, Shell, Target};
 use crate::logger::StarshipLogger;
 use crate::utils::{CommandOutput, create_command};
 use log::{Level, LevelFilter};
@@ -9,6 +9,8 @@ use std::process::Command;
 use std::sync::LazyLock;
 use std::sync::Once;
 use tempfile::TempDir;
+use crate::config::StarshipConfig;
+use crate::configs::StarshipRootConfig;
 
 static FIXTURE_DIR: LazyLock<PathBuf> =
     LazyLock::new(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/test/fixtures/"));
@@ -52,14 +54,18 @@ fn init_logger() {
 }
 
 pub fn default_context() -> Context<'static> {
-    Context::new_with_shell_and_path(
+    let mut c = Context::new_with_shell_and_path(
         Properties::default(),
         Shell::Unknown,
         Target::Main,
         PathBuf::new(),
         PathBuf::new(),
         Env::default(),
-    )
+    );
+    // prevent developer config leaking
+    c.config = StarshipConfig::default();
+    c.root_config = StarshipRootConfig::default();
+    c
 }
 
 /// Render a specific starship module by name
@@ -107,16 +113,6 @@ impl<'a> ModuleRenderer<'a> {
         T: Into<PathBuf>,
     {
         self.context.logical_dir = path.into();
-        self
-    }
-
-    /// Init at `JJRepo` with a mocked path, allowing to test JJ modules in several situations:
-    /// valid repo, invalid repo, no repo at all.
-    pub fn jj_repo<T>(mut self, path: T) -> Self
-    where
-        T: Into<PathBuf>,
-    {
-        self.context.set_jj_repo(JJRepo::with_root(path.into()));
         self
     }
 
@@ -171,15 +167,6 @@ impl<'a> ModuleRenderer<'a> {
         self
     }
 
-    #[cfg(feature = "battery")]
-    pub fn battery_info_provider(
-        mut self,
-        battery_info_provider: &'a (dyn crate::modules::BatteryInfoProvider + Send + Sync),
-    ) -> Self {
-        self.context.battery_info_provider = battery_info_provider;
-        self
-    }
-
     pub fn pipestatus(mut self, status: &[i64]) -> Self {
         self.context.properties.pipestatus = Some(
             status
@@ -212,7 +199,6 @@ pub enum FixtureProvider {
     Fossil,
     Git { reftable: bool, bare: bool },
     Hg,
-    Jujutsu,
     Pijul,
 }
 
@@ -320,11 +306,6 @@ pub fn fixture_repo_with_hash(provider: FixtureProvider, sha256: bool) -> io::Re
                 .arg(path.path())
                 .output()?;
 
-            Ok(path)
-        }
-        FixtureProvider::Jujutsu => {
-            let path = tempfile::tempdir()?;
-            fs::create_dir(path.path().join(".jj"))?;
             Ok(path)
         }
         FixtureProvider::Pijul => {

@@ -1,114 +1,50 @@
 // While adding out new module add out module to src/module.rs ALL_MODULES const array also.
-mod aws;
-mod azure;
-mod buf;
-mod bun;
 mod c;
 mod cc;
 mod character;
 mod cmake;
 mod cmd_duration;
-mod cobol;
-mod conda;
 mod container;
 mod cpp;
-mod crystal;
 pub mod custom;
-mod daml;
-mod dart;
-mod deno;
 mod directory;
 mod direnv;
 mod docker_context;
 mod dotnet;
-mod elixir;
-mod elm;
 mod env_var;
-mod erlang;
-mod fennel;
 mod fill;
-mod fortran;
-mod fossil_branch;
-mod fossil_metrics;
-mod gcloud;
 mod git_branch;
 mod git_commit;
 mod git_metrics;
 mod git_state;
 pub mod git_status;
-mod gleam;
 mod golang;
 mod gradle;
-mod guix_shell;
-mod haskell;
-mod haxe;
-mod helm;
-mod hg_branch;
-mod hg_state;
 mod hostname;
 mod java;
 mod jobs;
-mod julia;
 mod kotlin;
-mod kubernetes;
 mod line_break;
-mod localip;
-mod lua;
 mod maven;
 mod memory_usage;
 mod meson;
-mod mise;
-mod mojo;
-mod nats;
-mod netns;
-mod nim;
 mod nix_shell;
 mod nodejs;
-mod ocaml;
-mod odin;
-mod opa;
-mod openstack;
-mod os;
 mod package;
-mod perl;
-mod php;
-mod pijul_channel;
-mod pixi;
-mod pulumi;
-mod purescript;
 mod python;
-mod quarto;
-mod raku;
-mod red;
-mod rlang;
-mod ruby;
 mod rust;
-mod scala;
 mod shell;
 mod shlvl;
-mod singularity;
-mod solidity;
-mod spack;
 mod status;
 mod sudo;
-mod swift;
-mod terraform;
 mod time;
 mod username;
 mod utils;
-mod vagrant;
 mod vcs;
 mod vcsh;
-mod vlang;
-mod xmake;
 mod zig;
 
-#[cfg(feature = "battery")]
-mod battery;
 mod typst;
-
-#[cfg(feature = "battery")]
-pub use self::battery::{BatteryInfoProvider, BatteryInfoProviderImpl};
 
 use crate::config::ModuleConfig;
 use crate::context::{Context, Detected, Shell};
@@ -121,108 +57,47 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
         match module {
             // Keep these ordered alphabetically.
             // Default ordering is handled in configs/starship_root.rs
-            "aws" => aws::module(context),
-            "azure" => azure::module(context),
-            #[cfg(feature = "battery")]
-            "battery" => battery::module(context),
-            "buf" => buf::module(context),
-            "bun" => bun::module(context),
             "c" => c::module(context),
             "character" => character::module(context),
             "cmake" => cmake::module(context),
             "cmd_duration" => cmd_duration::module(context),
-            "cobol" => cobol::module(context),
-            "conda" => conda::module(context),
             "container" => container::module(context),
             "cpp" => cpp::module(context),
-            "daml" => daml::module(context),
-            "dart" => dart::module(context),
-            "deno" => deno::module(context),
             "directory" => directory::module(context),
             "direnv" => direnv::module(context),
             "docker_context" => docker_context::module(context),
             "dotnet" => dotnet::module(context),
-            "elixir" => elixir::module(context),
-            "elm" => elm::module(context),
-            "erlang" => erlang::module(context),
             "env_var" => env_var::module(None, context),
-            "fennel" => fennel::module(context),
             "fill" => fill::module(context),
-            "fortran" => fortran::module(context),
-            "fossil_branch" => fossil_branch::module(context),
-            "fossil_metrics" => fossil_metrics::module(context),
-            "gcloud" => gcloud::module(context),
             "git_branch" => git_branch::module(context),
             "git_commit" => git_commit::module(context),
             "git_metrics" => git_metrics::module(context),
             "git_state" => git_state::module(context),
             "git_status" => git_status::module(context),
-            "gleam" => gleam::module(context),
             "golang" => golang::module(context),
             "gradle" => gradle::module(context),
-            "guix_shell" => guix_shell::module(context),
-            "haskell" => haskell::module(context),
-            "haxe" => haxe::module(context),
-            "helm" => helm::module(context),
-            "hg_branch" => hg_branch::module(context),
-            "hg_state" => hg_state::module(context),
             "hostname" => hostname::module(context),
             "java" => java::module(context),
             "jobs" => jobs::module(context),
-            "julia" => julia::module(context),
             "kotlin" => kotlin::module(context),
-            "kubernetes" => kubernetes::module(context),
             "line_break" => line_break::module(context),
-            "localip" => localip::module(context),
-            "lua" => lua::module(context),
             "maven" => maven::module(context),
             "memory_usage" => memory_usage::module(context),
             "meson" => meson::module(context),
-            "mise" => mise::module(context),
-            "mojo" => mojo::module(context),
-            "nats" => nats::module(context),
-            "netns" => netns::module(context),
-            "nim" => nim::module(context),
             "nix_shell" => nix_shell::module(context),
             "nodejs" => nodejs::module(context),
-            "ocaml" => ocaml::module(context),
-            "odin" => odin::module(context),
-            "opa" => opa::module(context),
-            "openstack" => openstack::module(context),
-            "os" => os::module(context),
             "package" => package::module(context),
-            "perl" => perl::module(context),
-            "php" => php::module(context),
-            "pijul_channel" => pijul_channel::module(context),
-            "pixi" => pixi::module(context),
-            "pulumi" => pulumi::module(context),
-            "purescript" => purescript::module(context),
             "python" => python::module(context),
-            "quarto" => quarto::module(context),
-            "raku" => raku::module(context),
-            "rlang" => rlang::module(context),
-            "red" => red::module(context),
-            "ruby" => ruby::module(context),
             "rust" => rust::module(context),
-            "scala" => scala::module(context),
             "shell" => shell::module(context),
             "shlvl" => shlvl::module(context),
-            "singularity" => singularity::module(context),
-            "solidity" => solidity::module(context),
-            "spack" => spack::module(context),
-            "swift" => swift::module(context),
             "status" => status::module(context),
             "sudo" => sudo::module(context),
-            "terraform" => terraform::module(context),
             "time" => time::module(context),
             "typst" => typst::module(context),
-            "crystal" => crystal::module(context),
             "username" => username::module(context),
-            "vlang" => vlang::module(context),
-            "vagrant" => vagrant::module(context),
             "vcs" => vcs::module(context),
             "vcsh" => vcsh::module(context),
-            "xmake" => xmake::module(context),
             "zig" => zig::module(context),
             env if env.starts_with("env_var.") => {
                 env_var::module(env.strip_prefix("env_var."), context)
@@ -307,10 +182,6 @@ pub fn description(module: &str) -> &'static str {
         "hg_state" => "The current hg operation",
         "hostname" => "The system hostname",
         "java" => "The currently installed version of Java",
-        "jj_bookmark" => "The closest ancestor bookmark in Jujutsu",
-        "jj_change" => "The current change in Jujutsu",
-        "jj_metrics" => "The number of added and deleted lines in Jujutsu",
-        "jj_status" => "Current status in Jujutsu represented via symbols",
         "jobs" => "The current number of jobs running",
         "julia" => "The currently installed version of Julia",
         "kotlin" => "The currently installed version of Kotlin",

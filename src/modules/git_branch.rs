@@ -397,7 +397,12 @@ mod tests {
                 .path(repo_dir.path())
                 .collect();
 
-            assert_eq!(None, actual);
+            let expected = Some(format!(
+                "on {} ",
+                Color::Purple.bold().paint("\u{e0a0} main")
+            ));
+
+            assert_eq!(expected, actual);
             repo_dir.close()?;
         }
         Ok(())
@@ -481,7 +486,12 @@ mod tests {
                 .path(repo_dir.path())
                 .collect();
 
-            assert_eq!(None, actual);
+            let expected = Some(format!(
+                "on {} ",
+                Color::Purple.bold().paint("\u{e0a0} main")
+            ));
+
+            assert_eq!(expected, actual);
             repo_dir.close()?;
         }
         Ok(())

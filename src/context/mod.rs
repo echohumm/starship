@@ -30,12 +30,8 @@ use terminal_size::terminal_size;
 pub use crate::utils::env::Env;
 
 mod git_repo;
-mod jj_repo;
 
 pub use git_repo::{GitRemote, GitRepo};
-pub use jj_repo::JJRepo;
-#[cfg(test)]
-pub use jj_repo::mock_jj_cmd;
 
 /// Context contains data or common methods that may be used by multiple modules.
 /// The data contained within Context will be relevant to this particular rendering
@@ -64,9 +60,6 @@ pub struct Context<'a> {
     /// Private field to store Git information for modules who need it
     git_repo: OnceLock<Result<GitRepo, gix::Error>>,
 
-    /// Private field to store JJ information for modules who need it
-    jj_repo: OnceLock<Option<JJRepo>>,
-
     /// The shell the user is assumed to be running
     pub shell: Shell,
 
@@ -86,9 +79,6 @@ pub struct Context<'a> {
     /// a mock of the root directory
     #[cfg(test)]
     pub root_dir: tempfile::TempDir,
-
-    #[cfg(feature = "battery")]
-    pub battery_info_provider: &'a (dyn crate::modules::BatteryInfoProvider + Send + Sync),
 
     /// Starship root config
     pub root_config: StarshipRootConfig,
@@ -191,7 +181,6 @@ impl<'a> Context<'a> {
             logical_dir,
             dir_contents: OnceLock::new(),
             git_repo: OnceLock::new(),
-            jj_repo: OnceLock::new(),
             shell,
             target,
             width,
@@ -200,8 +189,6 @@ impl<'a> Context<'a> {
             root_dir: tempfile::TempDir::new().unwrap(),
             #[cfg(test)]
             cmd: HashMap::new(),
-            #[cfg(feature = "battery")]
-            battery_info_provider: &crate::modules::BatteryInfoProviderImpl,
             root_config,
             cmd_duration_shown: AtomicBool::new(false),
             repo_size,
@@ -408,16 +395,6 @@ impl<'a> Context<'a> {
                 })
             })
             .as_ref()
-    }
-
-    /// Will lazily discover Jujutsu repo root when a module requests it.
-    pub fn get_jj_repo(&self) -> Option<&JJRepo> {
-        self.jj_repo.get_or_init(|| JJRepo::discover(self)).as_ref()
-    }
-
-    #[cfg(test)]
-    pub fn set_jj_repo(&mut self, repo: JJRepo) {
-        self.jj_repo = OnceLock::from(Some(repo));
     }
 
     pub fn dir_contents(&self) -> Result<&DirContents, &std::io::Error> {

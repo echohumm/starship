@@ -639,7 +639,6 @@ CMake suite maintained and supported by Kitware (kitware.com/cmake).\n",
             stdout: String::from("22.1.3\n"),
             stderr: String::default(),
         }),
-        s if s.starts_with("jj --color never") => crate::context::mock_jj_cmd(s),
         _ => return None,
     };
     Some(out)
@@ -817,21 +816,6 @@ pub fn render_time(raw_millis: u128, show_millis: bool) -> String {
 
 pub fn home_dir() -> Option<PathBuf> {
     dirs::home_dir()
-}
-
-const HEXTABLE: &[char] = &[
-    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f',
-];
-
-/// Encode a u8 slice into a hexadecimal string.
-pub fn encode_to_hex(slice: &[u8]) -> String {
-    // let mut j = 0;
-    let mut dst = Vec::with_capacity(slice.len() * 2);
-    for &v in slice {
-        dst.push(HEXTABLE[(v >> 4) as usize] as u8);
-        dst.push(HEXTABLE[(v & 0x0f) as usize] as u8);
-    }
-    String::from_utf8(dst).unwrap()
 }
 
 pub trait PathExt {
@@ -1059,14 +1043,6 @@ mod tests {
             stderr: String::from("stderr"),
         };
         assert_eq!(get_command_string_output(case2), "stderr");
-    }
-
-    #[test]
-    fn sha1_hex() {
-        assert_eq!(
-            encode_to_hex(&[8, 13, 9, 189, 129, 94]),
-            "080d09bd815e".to_string()
-        );
     }
 
     #[test]
