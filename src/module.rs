@@ -43,7 +43,6 @@ pub const ALL_MODULES: &[&str] = &[
     "sudo",
     "time",
     "username",
-    "vcs",
     "vcsh",
     "zig",
 ];

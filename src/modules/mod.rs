@@ -39,7 +39,6 @@ mod sudo;
 mod time;
 mod username;
 mod utils;
-mod vcs;
 mod vcsh;
 mod zig;
 
@@ -91,7 +90,6 @@ pub fn handle<'a>(module: &str, context: &'a Context) -> Option<Module<'a>> {
             "sudo" => sudo::module(context),
             "time" => time::module(context),
             "username" => username::module(context),
-            "vcs" => vcs::module(context),
             "vcsh" => vcsh::module(context),
             "zig" => zig::module(context),
             env if env.starts_with("env_var.") => {
@@ -160,7 +158,6 @@ pub fn description(module: &str) -> &'static str {
         "sudo" => "Whether sudo credentials are currently cached",
         "time" => "The current local time",
         "username" => "The active user's username",
-        "vcs" => "The current Git repository and its configured Git modules",
         "vcsh" => "The currently active VCSH repository",
         "zig" => "The currently installed version of Zig",
         _ => "<no description>",

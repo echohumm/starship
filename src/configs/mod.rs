@@ -41,7 +41,6 @@ pub mod status;
 pub mod sudo;
 pub mod time;
 pub mod username;
-pub mod vcs;
 pub mod vcsh;
 pub mod zig;
 
@@ -135,8 +134,6 @@ pub struct FullConfig<'a> {
     time: time::TimeConfig<'a>,
     #[serde(borrow)]
     username: username::UsernameConfig<'a>,
-    #[serde(borrow)]
-    vcs: vcs::VcsConfig<'a>,
     #[serde(borrow)]
     vcsh: vcsh::VcshConfig<'a>,
     #[serde(borrow)]

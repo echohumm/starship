@@ -6,13 +6,10 @@ build = "build.rs"
 edition = "2024"
 include = [
   "src/**/*",
-  "/starship.exe.manifest",
-  "media/icon.ico",
   "build.rs",
   "LICENSE",
   "/README.md",
   "docs/public/presets/toml/",
-  ".github/config-schema.json",
 ]
 license = "ISC"
 repository = "https://github.com/echohumm/starship"
