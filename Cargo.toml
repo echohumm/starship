@@ -42,7 +42,7 @@ jsonc-parser = { version = "0.34.0", features = ["serde"] }
 log = { version = "0.4.34", features = ["std"] }
 # notify-rust is optional (on by default) because the crate doesn't currently build for darwin with nix
 # see: https://github.com/NixOS/nixpkgs/issues/160876
-notify-rust = { version = "4.18.1", optional = true }
+notify-rust = { version = "4.18.2", optional = true }
 nu-ansi-term = "0.50.3"
 # for efficient shared state between `git_status` and `git_metrics`, allowing parallel printing. This is for poison-free locks.
 parking_lot = "0.12.5"
