@@ -501,6 +501,37 @@ pub fn render_time(raw_millis: u128, show_millis: bool) -> String {
     out
 }
 
+/// Formats an integer into a human-readable string using SI prefixes (k, M, G, T)
+pub fn humanize_int(n: u64) -> String {
+    if n < 1000 {
+        return n.to_string();
+    }
+
+    let n = n as f64;
+    let units = ["k", "M", "G", "T", "P", "E"];
+    let mut unit_idx = 0;
+    let mut val = n / 1000.0;
+
+    // 999.5 and above would round to "1000" in the current unit, so promote it.
+    while val >= 999.5 && unit_idx < units.len() - 1 {
+        val /= 1000.0;
+        unit_idx += 1;
+    }
+
+    if val < 10.0 {
+        let s = format!("{:.1}{}", val, units[unit_idx]);
+        if s.contains(".0") {
+            s.replace(".0", "")
+        } else {
+            s
+        }
+        out.push('.');
+        out.push_str(&format!("{:03}", millis));
+    }
+
+    out
+}
+
 pub fn home_dir() -> Option<PathBuf> {
     dirs::home_dir()
 }
@@ -570,6 +601,136 @@ mod tests {
     #[test]
     fn render_time_test_1d() {
         assert_eq!(render_time(86_400_000_u128, false), "1:00:00:00");
+    }
+
+        #[test]
+    fn test_humanize_int() {
+        assert_eq!(humanize_int(0), "0");
+        assert_eq!(humanize_int(999), "999");
+        assert_eq!(humanize_int(1000), "1k");
+        assert_eq!(humanize_int(1200), "1.2k");
+        assert_eq!(humanize_int(10000), "10k");
+        assert_eq!(humanize_int(100000), "100k");
+        assert_eq!(humanize_int(1000000), "1M");
+        assert_eq!(humanize_int(1500000), "1.5M");
+    }
+
+    #[test]
+    fn test_humanize_int_rounding_crosses_unit_boundary() {
+        assert_eq!(humanize_int(999_499), "999k");
+        assert_eq!(humanize_int(999_500), "1M");
+        assert_eq!(humanize_int(999_999), "1M");
+        assert_eq!(humanize_int(999_500_000), "1G");
+        assert_eq!(humanize_int(999_499_999), "999M");
+        assert_eq!(humanize_int(999_999_999), "1G");
+    }
+
+    #[test]
+    fn exec_mocked_command() {
+        let result = exec_cmd(
+            "dummy_command",
+            &[] as &[&OsStr],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = Some(CommandOutput {
+            stdout: String::from("stdout ok!\n"),
+            stderr: String::from("stderr ok!\n"),
+        });
+
+        assert_eq!(result, expected);
+    }
+
+    // While the exec_cmd should work on Windows some of these tests assume a Unix-like
+    // environment.
+
+    #[test]
+    #[cfg(not(windows))]
+    fn exec_no_output() {
+        let result = internal_exec_cmd(
+            "true",
+            &[] as &[&OsStr],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = Some(CommandOutput {
+            stdout: String::new(),
+            stderr: String::new(),
+        });
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn exec_with_output_stdout() {
+        let result = internal_exec_cmd(
+            "/bin/sh",
+            &["-c", "echo hello"],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = Some(CommandOutput {
+            stdout: String::from("hello\n"),
+            stderr: String::new(),
+        });
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn exec_with_output_stderr() {
+        let result = internal_exec_cmd(
+            "/bin/sh",
+            &["-c", "echo hello >&2"],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = Some(CommandOutput {
+            stdout: String::new(),
+            stderr: String::from("hello\n"),
+        });
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn exec_with_output_both() {
+        let result = internal_exec_cmd(
+            "/bin/sh",
+            &["-c", "echo hello; echo world >&2"],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = Some(CommandOutput {
+            stdout: String::from("hello\n"),
+            stderr: String::from("world\n"),
+        });
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn exec_with_non_zero_exit_code() {
+        let result = internal_exec_cmd(
+            "false",
+            &[] as &[&OsStr],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = None;
+
+        assert_eq!(result, expected);
+    }
+
+    #[test]
+    #[cfg(not(windows))]
+    fn exec_slow_command() {
+        let result = internal_exec_cmd(
+            "sleep",
+            &["500"],
+            Duration::from_millis(DEFAULT_COMMAND_TIMEOUT_MS),
+        );
+        let expected = None;
+
+        assert_eq!(result, expected);
     }
 
     #[test]
