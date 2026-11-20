@@ -203,7 +203,7 @@ struct GitStatusInfo<'a> {
 }
 
 impl<'a> GitStatusInfo<'a> {
-    pub fn load(
+    pub const fn load(
         context: &'a Context,
         repo: &'a context::GitRepo,
         config: GitStatusConfig<'a>,
@@ -566,7 +566,7 @@ fn get_repo_status(
     Some(repo_status)
 }
 
-fn sanitize_rename_tracking(mut config: gix::diff::Rewrites) -> gix::diff::Rewrites {
+const fn sanitize_rename_tracking(mut config: gix::diff::Rewrites) -> gix::diff::Rewrites {
     config.limit = 100;
     config
 }
@@ -851,7 +851,7 @@ fn git_status_wsl(context: &Context, conf: &GitStatusConfig) -> Option<String> {
 }
 
 #[cfg(not(target_os = "linux"))]
-fn git_status_wsl(_context: &Context, _conf: &GitStatusConfig) -> Option<String> {
+const fn git_status_wsl(_context: &Context, _conf: &GitStatusConfig) -> Option<String> {
     None
 }
 

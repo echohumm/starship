@@ -108,7 +108,7 @@ impl DirenvState {
 
         for line in s.lines() {
             if let Some(path) = line.strip_prefix("Found RC path") {
-                rc_path = unsafe { PathBuf::from_str(path.trim()).unwrap_unchecked() };
+                rc_path = PathBuf::from(path.trim())
             } else if let Some(value) = line.strip_prefix("Found RC allowed") {
                 allowed = Some(AllowStatus::from_str(value.trim())?);
             } else if line.contains("No .envrc or .env loaded") {

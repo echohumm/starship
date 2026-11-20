@@ -80,7 +80,7 @@ fn is_login_user(context: &Context, username: &str) -> bool {
 }
 
 #[cfg(test)]
-fn is_root_user() -> bool {
+const fn is_root_user() -> bool {
     false
 }
 
